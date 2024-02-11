@@ -17,7 +17,3 @@ struct TestView: View {
         Text("testView")
     }
 }
-
-struct TestStruct {
-    var test: String
-}
