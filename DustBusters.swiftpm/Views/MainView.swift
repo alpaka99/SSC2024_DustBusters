@@ -22,18 +22,18 @@ struct MainView: View {
                 Spacer()
                     .frame(maxHeight: 400)
                 
-                NavigationLink(mainViewReducer.startButtonTitle, value: MainViewReducer())
-                    .navigationDestination(for: MainViewReducer.self) { value in
-                        TestView(testViewReducer: value)
-                    }
-                .font(.title)
-                .foregroundStyle(Color.white)
-                .padding(16)
-                .background {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(mainViewReducer.isStartDisabled ? .gray : .green)
-                }
-                .disabled(mainViewReducer.isStartDisabled)
+//                NavigationLink(mainViewReducer.startButtonTitle, value: MainViewReducer())
+//                    .navigationDestination(for: MainViewReducer.self) { value in
+//                        TestView(testViewReducer: value)
+//                    }
+//                .font(.title)
+//                .foregroundStyle(Color.white)
+//                .padding(16)
+//                .background {
+//                    RoundedRectangle(cornerRadius: 20)
+//                        .fill(mainViewReducer.isStartDisabled ? .gray : .green)
+//                }
+//                .disabled(mainViewReducer.isStartDisabled)
                 
                 NavigationLink(mainViewReducer.continueButtonTitle) {
                     
