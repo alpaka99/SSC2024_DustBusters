@@ -31,6 +31,8 @@ extension Reducer {
 
 protocol ReducerAction { }
 
+
+@available(iOS 11.0, *)
 final class SampleReducer: Reducer {
     struct States {
         

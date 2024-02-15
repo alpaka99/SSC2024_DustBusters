@@ -4,7 +4,7 @@ import SwiftUI
 struct MyApp: App {
     var body: some Scene {
         WindowGroup {
-            MainView(mainViewReducer: MainViewReducer())
+            MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: false))
         }
     }
 }
