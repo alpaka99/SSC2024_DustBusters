@@ -11,9 +11,14 @@ import UIKit
 
 struct ARView: View {
     let arviewReducer: any Reducer
+    @State private var arViewControllerContainer: ARViewControllerContainer? = ARViewControllerContainer()
+    @State private var isShowingModal: Bool = false
     
     var body: some View {
-        return ARViewControllerContainer()
+        arViewControllerContainer
+            .onDisappear {
+                self.arViewControllerContainer = nil
+            }
     }
 }
 

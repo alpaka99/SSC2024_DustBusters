@@ -12,8 +12,8 @@ import UIKit
 class ARViewController: UIViewController {
     private var arSceneView: ARSCNView!
     private var frameCounter: Int = 0
-    private let handPosePredictionInterval: Int = 30
-    var model = try? MyHandPoseClassifier()
+    private let handPosePredictionInterval: Int = 10
+    private var model = try? MyHandPoseClassifier()
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
     private var currentHandPoseObservation: VNHumanHandPoseObservation?
@@ -25,21 +25,24 @@ class ARViewController: UIViewController {
     private var customDistance: Float = 20
     private var scoreLabel: UILabel!
     private var timer: Timer?
-    private var timeLabel: UILabel!
+    private var resultView: UIView!
+    private var resultLabel: UILabel!
+    private var resetButton: UIButton!
+    private var nextButton: UIButton!
     private var score: Int = 0 {
         didSet {
             if score == 10 {
-                showTimeLabel()
+                showResult()
             }
         }
     }
     private var seconds: Float = 0 {
         didSet {
-            DispatchQueue.main.async {
-                self.scoreLabel.text = String(
+            DispatchQueue.main.async { [weak self] in
+                self?.scoreLabel.text = String(
                     format: "Target: %d/10, Time: %.3f",
-                    self.score,
-                    self.seconds
+                    self?.score ?? -1,
+                    self?.seconds ?? -1
                 )
             }
         }
@@ -51,24 +54,15 @@ class ARViewController: UIViewController {
         
         //ARSCNView를 전체 화면 사이즈로 생성 후 view에 추가
         arSceneView = ARSCNView(frame: view.bounds)
+        arSceneView.session.delegate = self
+        arSceneView.delegate = self
         view.addSubview(arSceneView)
         viewWidth = Int(arSceneView.bounds.width)
         viewHeight = Int(arSceneView.bounds.height)
         
-        //arScnView는 사용자의 얼굴을 추적하기 위해 ARFaceTrackingConfiguration로 생성
-        //기존의 앵커들을 제거하고 새로운 추적 작업을 시작
-        let config = ARWorldTrackingConfiguration()
-        arSceneView.session.delegate = self
-        arSceneView.session.run(config, options: [.removeExistingAnchors])
         
-        setupCrosshair()
-        createTargets()
-        setupTimeLabel()
-        
-        setupScoreLabel()
-        //effets 생성
-        prepareEffects()
-        arSceneView.delegate = self
+        // setup game
+        setUpGame()
     }
     
     func update() {
@@ -82,7 +76,7 @@ class ARViewController: UIViewController {
                                     pow(heartPosition.y - targetPosition.y, 2) +
                                     pow(heartPosition.z - targetPosition.z, 2))
                 
-                if distance < 0.3 { // Assume 0.1 as the threshold
+                if distance < 0.5 { // Assume 0.1 as the threshold
                     score += 1
                     // Optionally, remove the targetNode from targetNodes and the scene
                     if let index = targetNodes.firstIndex(of: targetNode) {
@@ -94,60 +88,90 @@ class ARViewController: UIViewController {
             
             
         }
-        if score == 10 {
+//        if score == 10 {
+//            stopTimer()
+//        }
+        
+        if seconds > 20 {
             stopTimer()
+            showResult()
         }
     }
     
-    func showTimeLabel() {
-        DispatchQueue.main.async {
-            if self.seconds <= 30 {
-                self.timeLabel.text = String(format: "특등사수 \n %.3f초", self.seconds)
-            } else if self.seconds <= 35 {
-                self.timeLabel.text = String(format: "순발력굳\n %.3f초", self.seconds)
-            } else if self.seconds <= 40 {
-                self.timeLabel.text = String(format: "나쁘지 않을지도\n %.3f초", self.seconds)
-            } else if self.seconds <= 45 {
-                self.timeLabel.text = String(format: "당신은 잘못없어요.. 당신의손이\n %.3f초", self.seconds)
-            } else if self.seconds <= 50 {
-                self.timeLabel.text = String(format: "혹시 수전증...?\n %.3f초", self.seconds)
-            } else {
-                self.timeLabel.text = String(format: "이건 좀 심각한데??\n %.3f초", self.seconds)
-            }
-            self.timeLabel.alpha = 1 // Make the label visible
+    func showResult() {
+        DispatchQueue.main.async { [ weak self ] in
+//            guard let seconds = self?.seconds, let timeLabel = self?.resultLabel else { return }
+//            self?.resultLabel.text = String(format: "Your score is \n %d", self?.targetNodes.count ?? -1)
+//            self?.resultView.alpha = 1 // Make the label visible
+//            self?.resultLabel.alpha = 1
+            let alertController = UIAlertController(title: "Time's UP", message: String(format: "Your score is \n %d", self?.targetNodes.count ?? -1), preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "Replay", style: .cancel) { _ in
+                self?.setUpGame()
+            })
+            
+            self?.present(alertController, animated: true)
+//            }
         }
-        
     }
     
     
     func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true) { timer in
-            self.seconds += 0.001
+        timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true) {[weak self] _ in
+            self?.seconds += 0.001
         }
     }
     
     func stopTimer() {
-        timer?.invalidate()
-        timer = nil
-        
+        self.timer?.invalidate()
+        self.timer = nil
     }
     
     func setupTimeLabel() {
-        // Create a new label
-        timeLabel = UILabel()
-        timeLabel.font = UIFont.systemFont(ofSize: 30)
-        timeLabel.textColor = .white
-        timeLabel.textAlignment = .center
-        timeLabel.alpha = 0 // Make the label initially transparent
-        timeLabel.numberOfLines = 2
-        timeLabel.translatesAutoresizingMaskIntoConstraints = false
+//        // Create a new label
+//        resultLabel = UILabel()
+//        resultLabel.font = UIFont.systemFont(ofSize: 30)
+//        resultLabel.textColor = .white
+//        resultLabel.textAlignment = .center
+//        resultLabel.alpha = 0 // Make the label initially transparent
+//        resultLabel.numberOfLines = 2
+//        resultLabel.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        
+//        
+//        // Add the label to the view
+//        self.view.addSubview(resultLabel)
+//        
+//        // Center the label in the view
+//        resultLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+//        resultLabel.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
         
-        // Add the label to the view
-        self.view.addSubview(timeLabel)
+        // resultView
+        resultView = UIView()
+        resultView.alpha = 0
+        resultView.translatesAutoresizingMaskIntoConstraints = false
         
-        // Center the label in the view
-        timeLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        timeLabel.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+        resultLabel = UILabel()
+        resultLabel.font = UIFont.systemFont(ofSize: 30)
+        resultLabel.textColor = .white
+        resultLabel.textAlignment = .center
+        resultLabel.alpha = 0 // Make the label initially transparent
+        resultLabel.numberOfLines = 2
+        resultLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        resetButton = UIButton()
+        resetButton.titleLabel?.text = "Replay"
+        resetButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        nextButton = UIButton()
+        nextButton.titleLabel?.text = "Next"
+        nextButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        resultView.addSubview(resultLabel)
+        resultView.addSubview(resetButton)
+        resultView.addSubview(nextButton)
+        
+        self.view.addSubview(resultView)
+        
     }
     
     func setupScoreLabel() {
@@ -201,23 +225,24 @@ class ARViewController: UIViewController {
     
     
     func makePrediction(handPoseObservation: VNHumanHandPoseObservation) {
+        guard let model = self.model else { return }
         //손 모습의 키포인트 정보
         guard let keypointsMultiArray = try? handPoseObservation.keypointsMultiArray() else { fatalError() }
         do {
             //모델을 사용하여 keypointsMultiArray를 입력으로 하여 예측 수행
-            let prediction = try model!.prediction(poses: keypointsMultiArray)
+            let prediction = try model.prediction(poses: keypointsMultiArray)
             let label = prediction.label
             
             guard let confidence = prediction.labelProbabilities[label] else { return }
             print("label:\(prediction.label)\nconfidence:\(confidence)")
             
-            //예측의 신뢰도가 90% 이상이면 아래의 동작을 수행
+            //예측의 신뢰도가 80% 이상이면 아래의 동작을 수행
             if confidence > 0.8 {
-                DispatchQueue.main.async { [self] in
+                DispatchQueue.main.async { [weak self] in
                     switch label {
                     case "heart":
-                        if timer == nil { startTimer() }
-                        displayFingerHeartEffect()
+                        if self?.timer == nil { self?.startTimer() }
+                        self?.displayFingerHeartEffect()
                         //                    case "peace":
                         //                        if timer == nil { startTimer() }
                         //                        displayPeaceEffect()
@@ -233,8 +258,7 @@ class ARViewController: UIViewController {
     
     func displayFingerHeartEffect(){
         //이미 effect가 표시 중일 때는 다시 표시하지 않음
-        guard !isEffectAppearing
-        else { return }
+        guard !isEffectAppearing else { return }
         isEffectAppearing = true
         
         //손 모습을 가져온 후, getHandPosition 함수를 사용하여 손가락 위치를 가져옴
@@ -244,8 +268,8 @@ class ARViewController: UIViewController {
         else { return }
         
         if let heartNode = heartNode {
-            
             heartNode.position = indexFingerPosition
+            
             let fadeIn = SCNAction.fadeIn(duration: 0.2)
             
             let cameraPosition = SCNVector3(cameraDirection[3][0], cameraDirection[3][1], cameraDirection[3][2])
@@ -272,7 +296,7 @@ class ARViewController: UIViewController {
                 self.isEffectAppearing = false
             }
             let fadeOut = SCNAction.fadeOut(duration: 0.5)
-            let shakeRepeat = SCNAction.sequence([shakeHalfRight,shake,shake,shake,shake,shakeHalfLeft])
+//            let shakeRepeat = SCNAction.sequence([shakeHalfRight,shake,shake,shake,shake,shakeHalfLeft])
             heartNode.runAction(.sequence([fadeIn,move,fadeOut,switchEffectAppearing]))
         } else {
             prepareEffects()
@@ -284,15 +308,14 @@ class ARViewController: UIViewController {
     
     func displayPeaceEffect(){
         //이미 effect가 표시 중일 때는 다시 표시하지 않음
-        guard !isEffectAppearing
-        else { return }
+        guard !isEffectAppearing else { return }
         
         //손 모습을 가져온 후, getHandPosition 함수를 사용하여 손가락 위치를 가져옴
         isEffectAppearing = true
         guard let handPoseObservation = currentHandPoseObservation,
               let cameraDirection = currentCameraDirection,
               let indexFingerPosition = getHandPosition(handPoseObservation: handPoseObservation)
-        else {return}
+        else { return }
         
         // starNode에 담겨있는 8개의 별에 대해서 다음의 동작 수행
         starNodes.forEach { star in
@@ -371,22 +394,28 @@ class ARViewController: UIViewController {
     }
     
     func prepareEffects() {
-        guard let scene = SCNScene(named: "art.scnassets/Effects.scn") else { return }
+        guard let scene = SCNScene(named: "Resource/3dAssets/Effects.scn") else { return }
+        
+        //        print(scene.rootNode.childNodes)
         //Effects.scn에서 node 이름이 heart인 node를 arScnView에 추가
-        guard let heart = scene.rootNode.childNode(withName: "heart", recursively: true)?.clone() else {return}
+        guard let heart = scene.rootNode.childNode(withName: "heart", recursively: true) else {
+            print("cannot find childnode of heartScene")
+            return
+        }
+        
         heart.scale = SCNVector3(x: 0.005, y: 0.005, z: 0.005)
         heartNode = heart
         arSceneView.scene.rootNode.addChildNode(heart)
         heart.opacity = 0
         
         //8개의 별을 나타내기 위해 starNode에 8개의 별을 추가후 arScnView에 starNode 추가
-        for _ in 0...7 {
-            guard let star = scene.rootNode.childNode(withName: "star", recursively: true)?.clone() else {return}
-            star.scale = SCNVector3(x: 0.002, y: 0.002, z: 0.002)
-            starNodes.append(star)
-            arSceneView.scene.rootNode.addChildNode(star)
-            star.opacity = 0
-        }
+//        for _ in 0...7 {
+//            guard let star = scene.rootNode.childNode(withName: "star", recursively: true)?.clone() else {return}
+//            star.scale = SCNVector3(x: 0.002, y: 0.002, z: 0.002)
+//            starNodes.append(star)
+//            arSceneView.scene.rootNode.addChildNode(star)
+//            star.opacity = 0
+//        }
     }
 }
 
@@ -399,7 +428,7 @@ extension ARViewController: ARSessionDelegate {
         
         currentCameraDirection = frame.camera.transform
         //백그라운드 스레드에서 다음 로직이 실행되도록 처리
-        DispatchQueue.global(qos: .userInitiated).async { [self] in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             //손 모습을 감지하기 위한 Vision 프레임워크의 요청
             let handPoseRequest = VNDetectHumanHandPoseRequest()
             //최대 손 개수를 1개
@@ -419,22 +448,49 @@ extension ARViewController: ARSessionDelegate {
             
             //첫 번째 손 모습 감지 결과를 observation에 저장
             guard let observation = handPoses.first else { return }
-            currentHandPoseObservation = observation
-            frameCounter += 1
+            
+            self?.currentHandPoseObservation = observation
+            self?.frameCounter += 1
             
             //만약 frameCounter가 handPosePredictionInterval로 나누어 떨어진다면, 손 모습 예측을 수행하는 makePrediction 함수를 호출
             //매 프레임 마다 수행하는게 아닌, 30프레임마다 예측 수행
-            if frameCounter % handPosePredictionInterval == 0 {
-                frameCounter = 0
-                makePrediction(handPoseObservation: observation)
+            if let frameCounter = self?.frameCounter,
+               let handPosePredictionInterval = self?.handPosePredictionInterval {
+                if frameCounter % handPosePredictionInterval == 0 {
+                    self?.frameCounter = 0
+                    self?.makePrediction(handPoseObservation: observation)
+                }
             }
         }
+    }
+    
+    func setUpGame() {
+        //arScnView는 사용자의 얼굴을 추적하기 위해 ARFaceTrackingConfiguration로 생성
+        //기존의 앵커들을 제거하고 새로운 추적 작업을 시작
+        let config = ARWorldTrackingConfiguration()
+        config.frameSemantics.insert(.personSegmentationWithDepth)
+        
+        arSceneView.session.run(config, options: [.removeExistingAnchors])
+        
+        setupCrosshair()
+        createTargets()
+        setupTimeLabel()
+        
+        setupScoreLabel()
+        //effets 생성
+        prepareEffects()
     }
 }
 
 extension ARViewController: ARSCNViewDelegate {
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-        update()
+        if seconds < 20 {
+            update()
+        } else {
+//            self.model = nil
+            stopTimer()
+            showResult()
+        }
     }
 }
 
