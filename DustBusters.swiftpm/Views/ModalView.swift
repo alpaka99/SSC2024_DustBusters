@@ -11,7 +11,7 @@ import SwiftUI
 struct ModalView: View {
     let borderColor: Color = .white
     let borderWidth: CGFloat = 20
-    let modalText: [String] = ["Hi I'm Lets", "This is Modal View"]
+    let modalText: [String]
     @State private var textNumber: Int = 0
     
     var body: some View {
@@ -60,7 +60,7 @@ struct ModalTestView: View {
         Group {
             Color.yellow
                 .overlay {
-                    ModalView()
+                    ModalView(modalText: [])
                 }
         }
         .compositingGroup()

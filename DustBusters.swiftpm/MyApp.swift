@@ -4,7 +4,10 @@ import SwiftUI
 struct MyApp: App {
     var body: some Scene {
         WindowGroup {
-            MainView(mainViewReducer: MainViewReducer())
+            Color.blue
+                .overlay {
+                    MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: false))
+                }
         }
     }
 }
