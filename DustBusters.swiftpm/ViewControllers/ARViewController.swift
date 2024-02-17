@@ -10,10 +10,18 @@ import CoreML
 import UIKit
 
 class ARViewController: UIViewController {
+    let crosshairImageName: String = "Crosshair"
+    let heartModelPath: String = "Resource/3dAssets/Effects.scn"
+    let targetModelPath: String = "Resource/3dAssets/Target.usdz"
+    let initialScoreLabelText: String = "Score: 0"
+    let timeLimit: Double = 5
+    let handPosePredictionInterval: Int = 10
+    let customDistance: Float = 20
+    let targetNodeAmount: Int = 10
+    
     private var arSceneView: ARSCNView!
     private var frameCounter: Int = 0
-    private let handPosePredictionInterval: Int = 10
-    private var model = try? MyHandPoseClassifier()
+    private var model: MyHandPoseClassifier?
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
     private var currentHandPoseObservation: VNHumanHandPoseObservation?
@@ -22,7 +30,7 @@ class ARViewController: UIViewController {
     private var targetNodes: [SCNNode] = []
     private var isEffectAppearing: Bool = false
     private var currentCameraDirection: simd_float4x4?
-    private var customDistance: Float = 20
+    
     private var scoreLabel: UILabel!
     private var timer: Timer?
     private var resultView: UIView!
@@ -36,17 +44,21 @@ class ARViewController: UIViewController {
             }
         }
     }
-    private var seconds: Float = 0 {
+    private var seconds: Double = 0 {
         didSet {
             DispatchQueue.main.async { [weak self] in
                 self?.scoreLabel.text = String(
-                    format: "Target: %d/10, Time: %.3f",
+                    format: "Target: %d/10, Time: %.1f",
                     self?.score ?? -1,
-                    self?.seconds ?? -1
+                    abs((self?.timeLimit ?? -100) -  (self?.seconds ?? -100))
                 )
             }
         }
     }
+    
+    var testVar: Int = 10
+    
+    
     
     //ViewController가 처음 나타날 때 실행되는 코드
     override func viewDidLoad() {
@@ -60,7 +72,6 @@ class ARViewController: UIViewController {
         viewWidth = Int(arSceneView.bounds.width)
         viewHeight = Int(arSceneView.bounds.height)
         
-        
         // setup game
         setUpGame()
     }
@@ -72,9 +83,16 @@ class ARViewController: UIViewController {
                 let heartPosition = heartNode.position
                 let targetPosition = targetNode.position
                 
-                let distance = sqrt(pow(heartPosition.x - targetPosition.x, 2) +
-                                    pow(heartPosition.y - targetPosition.y, 2) +
-                                    pow(heartPosition.z - targetPosition.z, 2))
+                let distance = sqrt(pow(
+                    heartPosition.x - targetPosition.x,
+                    2
+                ) + pow(
+                    heartPosition.y - targetPosition.y,
+                    2
+                ) + pow(
+                    heartPosition.z - targetPosition.z,
+                    2
+                ))
                 
                 if distance < 0.5 { // Assume 0.1 as the threshold
                     score += 1
@@ -92,25 +110,45 @@ class ARViewController: UIViewController {
 //            stopTimer()
 //        }
         
-        if seconds > 20 {
-            stopTimer()
-            showResult()
+        if seconds > timeLimit {
+            self.stopTimer()
+            self.stopModel()
+            self.showResult()
         }
     }
     
     func showResult() {
         DispatchQueue.main.async { [ weak self ] in
-//            guard let seconds = self?.seconds, let timeLabel = self?.resultLabel else { return }
-//            self?.resultLabel.text = String(format: "Your score is \n %d", self?.targetNodes.count ?? -1)
-//            self?.resultView.alpha = 1 // Make the label visible
-//            self?.resultLabel.alpha = 1
-            let alertController = UIAlertController(title: "Time's UP", message: String(format: "Your score is \n %d", self?.targetNodes.count ?? -1), preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "Replay", style: .cancel) { _ in
-                self?.setUpGame()
+            let alertController = UIAlertController(
+                title: "Time's UP!",
+                message: String(
+                    format: "Your score is \n %d / %d",
+                    self?.score ?? -1,
+                    self?.targetNodeAmount ?? -1
+                ),
+                preferredStyle: .alert
+            )
+            alertController.addAction(
+                UIAlertAction(
+                    title: "Replay",
+                    style: .cancel
+                ) { _ in
+                    self?.resetGame()
             })
+            alertController.addAction(
+                UIAlertAction(
+                    title: "Next",
+                    style: .default
+                ) { _ in
+//                    print("Next tapped")
+                    self?.dismiss(animated: true)
+                    NotificationCenter.default.post(
+                        name: Notification.Name("ARViewEndNotification"),
+                        object: nil
+                    )
+                })
             
             self?.present(alertController, animated: true)
-//            }
         }
     }
     
@@ -124,10 +162,33 @@ class ARViewController: UIViewController {
     func stopTimer() {
         self.timer?.invalidate()
         self.timer = nil
+        self.seconds = timeLimit
     }
     
-    func setupTimeLabel() {
-//        // Create a new label
+//    func setupTimeLabel() {
+////        // Create a new label
+////        resultLabel = UILabel()
+////        resultLabel.font = UIFont.systemFont(ofSize: 30)
+////        resultLabel.textColor = .white
+////        resultLabel.textAlignment = .center
+////        resultLabel.alpha = 0 // Make the label initially transparent
+////        resultLabel.numberOfLines = 2
+////        resultLabel.translatesAutoresizingMaskIntoConstraints = false
+////        
+////        
+////        
+////        // Add the label to the view
+////        self.view.addSubview(resultLabel)
+////        
+////        // Center the label in the view
+////        resultLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+////        resultLabel.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+//        
+//        // resultView
+//        resultView = UIView()
+//        resultView.alpha = 0
+//        resultView.translatesAutoresizingMaskIntoConstraints = false
+//        
 //        resultLabel = UILabel()
 //        resultLabel.font = UIFont.systemFont(ofSize: 30)
 //        resultLabel.textColor = .white
@@ -136,54 +197,45 @@ class ARViewController: UIViewController {
 //        resultLabel.numberOfLines = 2
 //        resultLabel.translatesAutoresizingMaskIntoConstraints = false
 //        
+//        resetButton = UIButton()
+//        resetButton.titleLabel?.text = "Replay"
+//        resetButton.translatesAutoresizingMaskIntoConstraints = false
 //        
+//        nextButton = UIButton()
+//        nextButton.titleLabel?.text = "Next"
+//        nextButton.translatesAutoresizingMaskIntoConstraints = false
 //        
-//        // Add the label to the view
-//        self.view.addSubview(resultLabel)
+//        resultView.addSubview(resultLabel)
+//        resultView.addSubview(resetButton)
+//        resultView.addSubview(nextButton)
 //        
-//        // Center the label in the view
-//        resultLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-//        resultLabel.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
-        
-        // resultView
-        resultView = UIView()
-        resultView.alpha = 0
-        resultView.translatesAutoresizingMaskIntoConstraints = false
-        
-        resultLabel = UILabel()
-        resultLabel.font = UIFont.systemFont(ofSize: 30)
-        resultLabel.textColor = .white
-        resultLabel.textAlignment = .center
-        resultLabel.alpha = 0 // Make the label initially transparent
-        resultLabel.numberOfLines = 2
-        resultLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        resetButton = UIButton()
-        resetButton.titleLabel?.text = "Replay"
-        resetButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        nextButton = UIButton()
-        nextButton.titleLabel?.text = "Next"
-        nextButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        resultView.addSubview(resultLabel)
-        resultView.addSubview(resetButton)
-        resultView.addSubview(nextButton)
-        
-        self.view.addSubview(resultView)
-        
-    }
+//        self.view.addSubview(resultView)
+//        
+//    }
     
     func setupScoreLabel() {
-        scoreLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 30))
-        scoreLabel.center = CGPoint(x: viewWidth/2, y: 50)
+        scoreLabel = UILabel(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: 200,
+            height: 30
+        ))
+        scoreLabel.center = CGPoint(
+            x: viewWidth/2,
+            y: 50
+        )
         scoreLabel.textAlignment = .center
-        scoreLabel.text = "Score: 0"
+        scoreLabel.text = initialScoreLabelText
         self.view.addSubview(scoreLabel)
     }
     
+    func setLayout() {
+        setupCrosshair()
+        
+    }
+    
     func setupCrosshair() {
-        let crosshairImage = UIImage(named: "Crosshair")
+        let crosshairImage = UIImage(named: crosshairImageName)
         let crosshairView = UIImageView(image: crosshairImage)
         crosshairView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -198,16 +250,26 @@ class ARViewController: UIViewController {
         let centerYConstraint = crosshairView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
         
         // 제약 조건을 활성화합니다.
-        NSLayoutConstraint.activate([widthConstraint, heightConstraint, centerXConstraint, centerYConstraint])
+        NSLayoutConstraint.activate(
+            [
+                widthConstraint,
+                heightConstraint,
+                centerXConstraint,
+                centerYConstraint
+            ])
     }
     
     func createTargets() {
-        for _ in 0..<10 {
-            guard let targetScene = SCNScene(named: "Resource/3dAssets/Target.usdz") else {
-                fatalError("Failed to load Target.usdz.")
+        for _ in 0..<targetNodeAmount {
+            guard let targetScene = SCNScene(named: targetModelPath) else {
+                fatalError("Failed to load \(targetModelPath).")
             }
-            guard let targetNode = targetScene.rootNode.childNodes.first?.clone() else {return}
-            targetNode.scale = SCNVector3(0.002, 0.002, 0.002)
+            guard let targetNode = targetScene.rootNode.childNodes.first?.clone() else { return }
+            targetNode.scale = SCNVector3(
+                0.002,
+                0.002,
+                0.002
+            )
             targetNode.position = SCNVector3(
                 Float.random(in: -10...10),
                 Float.random(in: -5...5),
@@ -221,6 +283,14 @@ class ARViewController: UIViewController {
             arSceneView.scene.rootNode.addChildNode(targetNode)
             targetNodes.append(targetNode)
         }
+    }
+    
+    func setModel() {
+        self.model = try? MyHandPoseClassifier(configuration: MLModelConfiguration())
+    }
+    
+    func stopModel() {
+        self.model = nil
     }
     
     
@@ -272,8 +342,16 @@ class ARViewController: UIViewController {
             
             let fadeIn = SCNAction.fadeIn(duration: 0.2)
             
-            let cameraPosition = SCNVector3(cameraDirection[3][0], cameraDirection[3][1], cameraDirection[3][2])
-            let cameraDirectionVector = SCNVector3(-cameraDirection[2][0], -cameraDirection[2][1], -cameraDirection[2][2])
+            let cameraPosition = SCNVector3(
+                cameraDirection[3][0],
+                cameraDirection[3][1],
+                cameraDirection[3][2]
+            )
+            let cameraDirectionVector = SCNVector3(
+                -cameraDirection[2][0],
+                 -cameraDirection[2][1],
+                 -cameraDirection[2][2]
+            )
             
             let desiredDirection = cameraDirectionVector
             let distanceToMove: Float = customDistance
@@ -285,27 +363,69 @@ class ARViewController: UIViewController {
             )
             
             
-            let move = SCNAction.move(to: targetPosition, duration: 0.6)
+            let move = SCNAction.move(
+                to: targetPosition,
+                duration: 0.6
+            )
             
-            let shakeHalfRight = SCNAction.rotate(by: -0.3, around: SCNVector3(x: 0, y: 0, z: 1), duration: 0.025)
-            let shakeLeft = SCNAction.rotate(by: 0.6, around: SCNVector3(x: 0, y: 0, z: 1), duration: 0.02)
-            let shakeRight = SCNAction.rotate(by: -0.6, around: SCNVector3(x: 0, y: 0, z: 1), duration: 0.02)
-            let shakeHalfLeft = SCNAction.rotate(by: 0.3, around: SCNVector3(x: 0, y: 0, z: 1), duration: 0.025)
-            let shake = SCNAction.sequence([shakeLeft,shakeRight])
+//            let shakeHalfRight = SCNAction.rotate(
+//                by: -0.3,
+//                around: SCNVector3(
+//                    x: 0,
+//                    y: 0,
+//                    z: 1
+//                ),
+//                duration: 0.025)
+            let shakeLeft = SCNAction.rotate(
+                by: 0.6,
+                around: SCNVector3(
+                    x: 0,
+                    y: 0,
+                    z: 1
+                ),
+                duration: 0.02)
+            let shakeRight = SCNAction.rotate(
+                by: -0.6,
+                around: SCNVector3(
+                    x: 0,
+                    y: 0,
+                    z: 1
+                ),
+                duration: 0.02)
+//            let shakeHalfLeft = SCNAction.rotate(
+//                by: 0.3,
+//                around: SCNVector3(
+//                    x: 0,
+//                    y: 0,
+//                    z: 1
+//                ),
+//                duration: 0.025
+//            )
+            let shake = SCNAction.sequence([
+                shakeLeft,
+                shakeRight
+            ])
             let switchEffectAppearing = SCNAction.run { node in
                 self.isEffectAppearing = false
             }
             let fadeOut = SCNAction.fadeOut(duration: 0.5)
 //            let shakeRepeat = SCNAction.sequence([shakeHalfRight,shake,shake,shake,shake,shakeHalfLeft])
-            heartNode.runAction(.sequence([fadeIn,move,fadeOut,switchEffectAppearing]))
+            heartNode.runAction(.sequence(
+                [
+                    fadeIn,
+                    move,
+                    fadeOut,
+                    switchEffectAppearing
+                ]))
         } else {
+            print("no heart node")
             prepareEffects()
             self.isEffectAppearing = false
         }
         
     }
     
-    
+    //MARK: Not currently using this functionality
     func displayPeaceEffect(){
         //이미 effect가 표시 중일 때는 다시 표시하지 않음
         guard !isEffectAppearing else { return }
@@ -342,18 +462,37 @@ class ARViewController: UIViewController {
             )
             
             
-            let moveForward = SCNAction.move(to: targetPosition, duration: 1.0)
-            let move = SCNAction.move(by: SCNVector3(x: randomX, y: randomY, z: randomZ), duration: 0.5)
+            let moveForward = SCNAction.move(
+                to: targetPosition,
+                duration: 1.0
+            )
+            let move = SCNAction.move(
+                by: SCNVector3(
+                    x: randomX,
+                    y: randomY,
+                    z: randomZ
+                ),
+                duration: 0.5)
             move.timingMode = .easeInEaseOut
             let fadeOut = SCNAction.fadeOut(duration: 1)
             let switchEffectAppearing = SCNAction.run { node in
                 self.isEffectAppearing = false
             }
-            star.runAction(.sequence([fadeIn, move, moveForward, fadeOut, switchEffectAppearing]))
+            star.runAction(.sequence(
+                [
+                    fadeIn,
+                    move,
+                    moveForward,
+                    fadeOut,
+                    switchEffectAppearing
+                ]))
         }
         
         //2초 후에 isEffectAppearing 상태를 다시 false로 변경하여 효과 표시를 가능하게 함
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { timer in
+        Timer.scheduledTimer(
+            withTimeInterval: 2,
+            repeats: false
+        ) { timer in
             self.isEffectAppearing = false
         }
     }
@@ -363,17 +502,24 @@ class ARViewController: UIViewController {
         //신뢰도가 0.3보다 작으면 위치를 가져올 수 없으므로 nil을 반환
         guard let indexFingerTip = try? handPoseObservation.recognizedPoints(.all)[.indexPIP],
               indexFingerTip.confidence > 0.3
-        else {return nil}
+        else { return nil }
         
         // 정규화되지 않은 포인트를 이미지 좌표로 변환
         let deNormalizedIndexPoint = VNImagePointForNormalizedPoint(
-            CGPoint(x: indexFingerTip.location.x, y:1-indexFingerTip.location.y),
+            CGPoint(
+                x: indexFingerTip.location.x,
+                y:1-indexFingerTip.location.y
+            ),
             viewWidth,
             viewHeight
         )
         
         // 카메라 앞의 위치
-        let infrontOfCamera = SCNVector3(x: 0, y: 0, z: -0.1)
+        let infrontOfCamera = SCNVector3(
+            x: 0,
+            y: 0,
+            z: -0.1
+        )
         
         // 카메라 노드 가져오기
         guard let cameraNode = arSceneView.pointOfView
@@ -394,16 +540,24 @@ class ARViewController: UIViewController {
     }
     
     func prepareEffects() {
-        guard let scene = SCNScene(named: "Resource/3dAssets/Effects.scn") else { return }
+        print(#function)
+        guard let scene = SCNScene(named: heartModelPath) else { return }
         
         //        print(scene.rootNode.childNodes)
         //Effects.scn에서 node 이름이 heart인 node를 arScnView에 추가
-        guard let heart = scene.rootNode.childNode(withName: "heart", recursively: true) else {
+        guard let heart = scene.rootNode.childNode(
+            withName: "heart",
+            recursively: true
+        ) else {
             print("cannot find childnode of heartScene")
             return
         }
         
-        heart.scale = SCNVector3(x: 0.005, y: 0.005, z: 0.005)
+        heart.scale = SCNVector3(
+            x: 0.005,
+            y: 0.005,
+            z: 0.005
+        )
         heartNode = heart
         arSceneView.scene.rootNode.addChildNode(heart)
         heart.opacity = 0
@@ -417,12 +571,21 @@ class ARViewController: UIViewController {
 //            star.opacity = 0
 //        }
     }
+    
+    func removeTargetFromScreen() {
+        for node in self.targetNodes {
+            node.removeFromParentNode()
+        }
+    }
 }
 
 //AR 세션이 프레임 업데이트를 받을 때 호출
 //해당 프레임에서 추출한 이미지를 사용하여 사용자의 손 모습을 감지하고 추적하는 작업을 수행
 extension ARViewController: ARSessionDelegate {
-    func session(_ session: ARSession, didUpdate frame: ARFrame) {
+    func session(
+        _ session: ARSession,
+        didUpdate frame: ARFrame
+    ) {
         //현재 프레임에서 캡처한 이미지의 픽셀 버퍼가 저장
         let pixelBuffer = frame.capturedImage
         
@@ -436,7 +599,11 @@ extension ARViewController: ARSessionDelegate {
             handPoseRequest.revision = VNDetectHumanHandPoseRequestRevision1
             
             // 이미지 처리를 수행
-            let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer,orientation: .right , options: [:])
+            let handler = VNImageRequestHandler(
+                cvPixelBuffer: pixelBuffer,
+                orientation: .right ,
+                options: [:]
+            )
             do {
                 try handler.perform([handPoseRequest])
             } catch {
@@ -467,28 +634,53 @@ extension ARViewController: ARSessionDelegate {
     func setUpGame() {
         //arScnView는 사용자의 얼굴을 추적하기 위해 ARFaceTrackingConfiguration로 생성
         //기존의 앵커들을 제거하고 새로운 추적 작업을 시작
-        let config = ARWorldTrackingConfiguration()
-        config.frameSemantics.insert(.personSegmentationWithDepth)
-        
-        arSceneView.session.run(config, options: [.removeExistingAnchors])
+        setARViewConfiguration()
         
         setupCrosshair()
         createTargets()
-        setupTimeLabel()
-        
+//        setupTimeLabel()
+        setModel()
         setupScoreLabel()
         //effets 생성
         prepareEffects()
     }
+    
+    func setARViewConfiguration() {
+        let config = ARWorldTrackingConfiguration()
+        config.frameSemantics.insert(.personSegmentationWithDepth)
+        removeTargetFromScreen()
+        arSceneView.session.run(config, options: [.removeExistingAnchors, .resetSceneReconstruction])
+    }
+    
+    func resetGame() {
+        self.scoreLabel.text = initialScoreLabelText
+        self.frameCounter = 0
+        self.seconds = 0
+        self.score = 0
+        self.setARViewConfiguration()
+        self.createTargets()
+        self.setModel()
+        self.prepareEffects()
+//        self.startTimer()
+    }
+    
+    func stopGame() {
+        stopTimer()
+        stopModel()
+        self.arSceneView.session.pause()
+    }
 }
 
 extension ARViewController: ARSCNViewDelegate {
-    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-        if seconds < 20 {
+    func renderer(
+        _ renderer: SCNSceneRenderer,
+        updateAtTime time: TimeInterval
+    ) {
+        if seconds <= timeLimit {
             update()
         } else {
 //            self.model = nil
-            stopTimer()
+            stopGame()
             showResult()
         }
     }
