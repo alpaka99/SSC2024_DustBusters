@@ -2,27 +2,26 @@
 //  File.swift
 //  
 //
-//  Created by user on 2/14/24.
+//  Created by user on 2/18/24.
 //
 
 import Foundation
 
-final class ARViewReducer: Reducer {
+final class SizeCompareViewReducer: Reducer {
     struct States {
         
     }
     
     enum Actions: ReducerAction {
-        
+        case buttonPressed(Int), titlePressed
     }
     
     @Published var states: States = States()
     private(set) var reducerId: String
     
-    init(reducerId: String) {
+    public init(reducerId: String) {
         self.reducerId = reducerId
     }
-    
     
     func send(_ action: Actions) {
         self.reduce(states: &states, action: action)
@@ -30,8 +29,12 @@ final class ARViewReducer: Reducer {
     
     func reduce(states: inout States, action: Actions) {
         switch action {
-            // some code to follow...
+        case .buttonPressed(let x):
+            print(x)
+            break
+        case .titlePressed:
+            print("title pressed")
+            break
         }
     }
-    
 }

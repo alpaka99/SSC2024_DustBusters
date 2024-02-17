@@ -376,22 +376,22 @@ class ARViewController: UIViewController {
 //                    z: 1
 //                ),
 //                duration: 0.025)
-            let shakeLeft = SCNAction.rotate(
-                by: 0.6,
-                around: SCNVector3(
-                    x: 0,
-                    y: 0,
-                    z: 1
-                ),
-                duration: 0.02)
-            let shakeRight = SCNAction.rotate(
-                by: -0.6,
-                around: SCNVector3(
-                    x: 0,
-                    y: 0,
-                    z: 1
-                ),
-                duration: 0.02)
+//            let shakeLeft = SCNAction.rotate(
+//                by: 0.6,
+//                around: SCNVector3(
+//                    x: 0,
+//                    y: 0,
+//                    z: 1
+//                ),
+//                duration: 0.02)
+//            let shakeRight = SCNAction.rotate(
+//                by: -0.6,
+//                around: SCNVector3(
+//                    x: 0,
+//                    y: 0,
+//                    z: 1
+//                ),
+//                duration: 0.02)
 //            let shakeHalfLeft = SCNAction.rotate(
 //                by: 0.3,
 //                around: SCNVector3(
@@ -401,10 +401,10 @@ class ARViewController: UIViewController {
 //                ),
 //                duration: 0.025
 //            )
-            let shake = SCNAction.sequence([
-                shakeLeft,
-                shakeRight
-            ])
+//            let _ = SCNAction.sequence([
+//                shakeLeft,
+//                shakeRight
+//            ])
             let switchEffectAppearing = SCNAction.run { node in
                 self.isEffectAppearing = false
             }
