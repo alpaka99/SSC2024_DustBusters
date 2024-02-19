@@ -8,7 +8,8 @@ struct MyApp: App {
 //                .overlay {
 //                    MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: false))
 //                }
-            SizeCompareView(sizeCompareViewReducer: SizeCompareViewReducer(reducerId: "SizeCompareView"))
+//            SizeCompareView(sizeCompareViewReducer: SizeCompareViewReducer(reducerId: "SizeCompareView"))
+            MicroDustEffectView()
         }
     }
 }
