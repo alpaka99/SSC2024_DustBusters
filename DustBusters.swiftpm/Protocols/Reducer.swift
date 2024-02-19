@@ -32,7 +32,6 @@ extension Reducer {
 protocol ReducerAction { }
 
 
-@available(iOS 11.0, *)
 final class SampleReducer: Reducer {
     struct States {
         
@@ -64,12 +63,3 @@ final class SampleReducer: Reducer {
         }
     }
 }
-
-enum Actions: ReducerAction {
-    case buttonPressed(Int), titlePressed
-}
-
-enum SampleReducerAction: ReducerAction {
-    case buttonPressed(Int), titlePressed
-}
-
