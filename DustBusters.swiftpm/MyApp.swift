@@ -9,7 +9,8 @@ struct MyApp: App {
 //                    .background {
 //                        CityLineView()
 //                    }
-                MicroDustEffectView()
+//                MicroDustEffectView()
+                SwipeView()
                 }
         }
     }
