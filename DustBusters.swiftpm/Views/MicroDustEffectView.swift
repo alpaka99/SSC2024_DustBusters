@@ -9,17 +9,37 @@ import Foundation
 import SwiftUI
 
 struct MicroDustEffectView: View {
+    @State private var size: CGFloat = 0
     var body: some View {
-        Image("twodusts")
-            .magnificationEffect(2, 0)
+        ZStack {
+            VStack {
+                //            Image("human")
+                Text("Hello world")
+            }
+            .frame(width: 400, height: 400)
+            .background {
+                Color.blue
+            }
+        }
+        .magnificationEffect(2, 0, size)
     }
 }
 
 
 extension View {
     @ViewBuilder
-    func magnificationEffect(_ scale: CGFloat, _ rotation: CGFloat, _ size: CGFloat = 0, _ tint: Color = .black) -> some View {
-        MagnificationEffectHelper(scale: scale, rotation: rotation, size: size, tint: tint) {
+    func magnificationEffect(
+        _ scale: CGFloat,
+        _ rotation: CGFloat,
+        _ size: CGFloat = 0,
+        _ tint: Color = .black
+    ) -> some View {
+        MagnificationEffectHelper(
+            scale: scale,
+            rotation: rotation,
+            size: size,
+            tint: tint
+        ) {
             return self
         }
     }
@@ -27,12 +47,13 @@ extension View {
 
 
 fileprivate struct MagnificationEffectHelper<Content: View>: View {
+    @State private var offset: CGSize = .zero
+    @State private var lastStoredOffset: CGSize = .zero
     
     var scale: CGFloat
     var rotation: CGFloat
     var size: CGFloat
     var tint: Color = .black
-    
     var content: Content
     
     init(scale: CGFloat, rotation: CGFloat, size: CGFloat, tint: Color, content: @escaping () -> Content) {
@@ -42,9 +63,6 @@ fileprivate struct MagnificationEffectHelper<Content: View>: View {
         self.tint = tint
         self.content = content()
     }
-    
-    @State private var offset: CGSize = .zero
-    @State private var lastStoredOffset: CGSize = .zero
     
     var body: some View {
         content
@@ -62,7 +80,7 @@ fileprivate struct MagnificationEffectHelper<Content: View>: View {
                     content
                         .offset(x: -offset.width, y: -offset.height)
                         .frame(width: newCircleSize, height: newCircleSize)
-                        .scaleEffect(scale)
+                        .scaleEffect(1 + scale)
                         .clipShape(Circle())
                         .offset(offset)
                         .frame(width: size.width, height: size.height)
@@ -87,10 +105,15 @@ fileprivate struct MagnificationEffectHelper<Content: View>: View {
             .gesture (
                 DragGesture()
                     .onChanged({ value in
-                        offset = CGSize(width: value.translation.width + lastStoredOffset.width, height: value.translation.height + lastStoredOffset.height)
+                        offset = CGSize(
+                            width: value.translation.width + lastStoredOffset.width,
+                            height: value.translation.height + lastStoredOffset.height
+                        )
+//                        offset = value.translation
                     })
                     .onEnded({ value in
-                        lastStoredOffset = value.translation
+                        lastStoredOffset = offset
+//                        lastStoredOffset = value.translation
                     })
             )
     }
@@ -105,7 +128,7 @@ extension View {
             .mask {
                 Rectangle()
                     .overlay {
-                        content()                            .blendMode(.destinationOut)
+                        content()    .blendMode(.destinationOut)
                     }
             }
     }

@@ -5,10 +5,11 @@ struct MyApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                    MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: true))
-                    .background {
-                        CityLineView()
-                    }
+//                    MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: true))
+//                    .background {
+//                        CityLineView()
+//                    }
+                MicroDustEffectView()
                 }
         }
     }
