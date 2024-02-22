@@ -17,7 +17,6 @@ struct Constants {
     }
     
     
-    
     static let scalableObjects: [ScalableObject] = [
         appleObject,
         coffeeObject,
@@ -31,12 +30,12 @@ struct Constants {
         ScalableObject.init(dummy: true),
     ]
     
-    private static let appleImageName: String = "apple"
-    private static let coffeebeanImageName: String = "coffeebean"
-    private static let waterImageName: String = "water"
-    private static let saltImageName: String = "salt"
-    private static let microdustImageName: String = "microdust"
-    private static let twodustsImageName: String = "twodusts"
+    internal static let appleImageName: String = "apple"
+    internal static let coffeebeanImageName: String = "coffeebean"
+    internal static let waterImageName: String = "water"
+    internal static let saltImageName: String = "salt"
+    internal static let microdustImageName: String = "microdust"
+    internal static let twodustsImageName: String = "twodusts"
 
     // 나누기 40 스케일
     private static let appleObject: ScalableObject = ScalableObject(
@@ -70,10 +69,4 @@ struct Constants {
     internal static let screenHeight: CGFloat = UIScreen.main.bounds.maxY
 }
 
-extension Constants.ScalableObject {
-    init(dummy: Bool) {
-        self.imageName = Constants.microdustImageName
-        self.initialSize = 10
-        self.opacity = 0.001
-    }
-}
+

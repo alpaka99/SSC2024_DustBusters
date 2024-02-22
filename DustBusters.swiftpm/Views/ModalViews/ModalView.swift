@@ -38,7 +38,6 @@ struct ModalView: View {
                             }
                             
                             Button {
-                                // 추후에 ModalViewReducer로 분리
                                 if textNumber < modalText.count - 1 {
                                     textNumber += 1
                                 }
@@ -64,12 +63,6 @@ struct ModalTestView: View {
                 }
         }
         .compositingGroup()
-    }
-}
-
-extension CGSize {
-    static func + (lhs: Self, rhs: Self) -> Self {
-        CGSize(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
     }
 }
 

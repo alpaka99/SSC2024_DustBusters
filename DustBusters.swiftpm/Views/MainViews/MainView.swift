@@ -25,9 +25,6 @@ struct MainView: View {
                 .navigationDestination(for: ARViewReducer.self) { value in
                     ARView(arviewReducer: value)
                 }
-            //                Button("Find Path") {
-            //                    findPath()
-            //                }
                 .font(.title)
                 .foregroundStyle(Color.white)
                 .padding(16)

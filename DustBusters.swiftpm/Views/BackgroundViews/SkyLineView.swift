@@ -146,7 +146,6 @@ struct SkyLineView: BuildingView {
             
             // ending path
             path.drawHorizontalLine()
-            
             path.closeSubpath()
         }
         .fill(buildingColor)
@@ -161,25 +160,3 @@ struct SkyLineView_Preview: PreviewProvider {
         SkyLineView(buildingColor: .blue)
     }
 }
-
-extension Path {
-    mutating func drawHorizontalLine() {
-        self.addLine(to: CGPoint(x: self.currentX, y: Constants.screenHeight))
-    }
-}
-
-
-//extension UIDevice {
-//    static func getCurrentStartingPoint() -> CGPoint {
-//        let orientation: UIDeviceOrientation = Self.current.orientation
-//        
-//        switch orientation {
-//        case let x where x == .portrait || x == .portraitUpsideDown:
-//            return CGPoint(x: 0, y: Constants.screenHeight)
-//        case let x where x == .landscapeLeft || x == .landscapeRight:
-//            return CGPoint(x: 0, y: Constants.screenHeight)
-//        default:
-//            return CGPoint(x: 0, y: Constants.screenHeight)
-//        }
-//    }
-//}

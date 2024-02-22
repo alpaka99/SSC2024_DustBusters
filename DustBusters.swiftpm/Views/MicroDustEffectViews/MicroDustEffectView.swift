@@ -26,27 +26,7 @@ struct MicroDustEffectView: View {
 }
 
 
-extension View {
-    @ViewBuilder
-    func magnificationEffect(
-        _ scale: CGFloat,
-        _ rotation: CGFloat,
-        _ size: CGFloat = 0,
-        _ tint: Color = .black
-    ) -> some View {
-        MagnificationEffectHelper(
-            scale: scale,
-            rotation: rotation,
-            size: size,
-            tint: tint
-        ) {
-            return self
-        }
-    }
-}
-
-
-fileprivate struct MagnificationEffectHelper<Content: View>: View {
+struct MagnificationEffectHelper<Content: View>: View {
     @State private var offset: CGSize = .zero
     @State private var lastStoredOffset: CGSize = .zero
     
@@ -120,16 +100,4 @@ fileprivate struct MagnificationEffectHelper<Content: View>: View {
 }
 
 
-extension View {
-    // ReversMask Modifier
-    @ViewBuilder
-    func reverseMask<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
-        self
-            .mask {
-                Rectangle()
-                    .overlay {
-                        content()    .blendMode(.destinationOut)
-                    }
-            }
-    }
-}
+

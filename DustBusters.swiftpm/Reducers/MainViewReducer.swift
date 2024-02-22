@@ -29,12 +29,4 @@ final class MainViewReducer: ObservableObject {
         self.isStartDisabled = isStartDisabled
         self.isContinueDisabled = isContinueDisabled
     }
-    
-//    func findBundle() {
-//        let classifierName = "*"
-//        let classifierType = "*"
-//        let item = Bundle(for: MyHandPoseClassifier.self).url(forResource: classifierName, withExtension: classifierType)
-//        
-//        print(item)
-//    }
 }

@@ -86,7 +86,6 @@ class MyHandPoseClassifierOutput : MLFeatureProvider {
         
         let bundle = Bundle(for: MyHandPoseClassifier.self)
         let url = bundle.url(forResource: resource, withExtension: extensionType)
-        print(url as Any)
         return url!
 //        return bundle.url(forResource: "Resources/MyHandPoseClassifier", withExtension: nil)!
     }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SwipeView: View {
     @State var isFinished: Bool = false
+    
     var body: some View {
         VStack {
             ScratchView(
@@ -74,13 +75,22 @@ struct SwipeView: View {
 
 
 struct ScratchView<Content: View, OverlayView: View>: View {
+    @Binding var isFinished: Bool
+    @State private var startingPoint: CGPoint = .zero
+    @State private var points: [CGPoint] = []
+    // for gesture update
+    @GestureState private var gestureLocation: CGPoint = .zero
+    
+    
     
     var content: Content
     var overlayView: OverlayView
     var cursorSize: CGFloat
-    @Binding var isFinished: Bool
     
-    init(cursorSize: CGFloat, isFinished: Binding<Bool>,
+    
+    init(
+        cursorSize: CGFloat,
+        isFinished: Binding<Bool>,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder overlayView: @escaping () -> OverlayView
     ) {
@@ -90,11 +100,7 @@ struct ScratchView<Content: View, OverlayView: View>: View {
         self.overlayView = overlayView()
     }
     
-    @State private var startingPoint: CGPoint = .zero
-    @State private var points: [CGPoint] = []
     
-    // for gesture update
-    @GestureState private var gestureLocation: CGPoint = .zero
     
     var body: some View {
         ZStack {
@@ -133,7 +139,6 @@ struct ScratchView<Content: View, OverlayView: View>: View {
                             }
                         }
                         .onEnded { value in
-                            print(points.count)
                             if points.count > 200 {
                                 withAnimation {
                                     isFinished = true
@@ -158,7 +163,6 @@ struct ScratchView<Content: View, OverlayView: View>: View {
         startingPoint = .zero
     }
 }
-
 
 
 struct ScratchMask: Shape {

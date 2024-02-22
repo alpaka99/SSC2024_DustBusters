@@ -1,29 +1,12 @@
 //
-//  SwiftUIView.swift
+//  File.swift
+//  
 //
-//
-//  Created by user on 2/22/24.
+//  Created by user on 2/23/24.
 //
 
+import Foundation
 import SwiftUI
-
-struct CityLineView: View {
-    var body: some View {
-        NeighborhoodView(buildingColor: .brown)
-            .background {
-                SkyLineView(buildingColor: .blue)
-            }
-    }
-}
-
-
-extension View {
-    func changeOrientation(to orientation: UIInterfaceOrientation) {
-        UIDevice.current.setValue(orientation.rawValue, forKey: "orientation")
-    }
-}
-
-
 
 extension Path {
     var currentX: CGFloat {
@@ -56,6 +39,10 @@ extension Path {
     
     mutating func drawParellelLine(_ x: CGFloat) {
         self.addLine(to: CGPoint(x: 0, y: self.currentY))
+    }
+    
+    mutating func drawHorizontalLine() {
+        self.addLine(to: CGPoint(x: self.currentX, y: Constants.screenHeight))
     }
     
     mutating func drawClockwiseQuadCircle(_ type: Quadrant ,_ radius: CGFloat) {
