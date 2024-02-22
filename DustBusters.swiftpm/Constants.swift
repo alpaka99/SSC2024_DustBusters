@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct Constants {
     struct ScalableObject: Hashable {
@@ -63,6 +64,10 @@ struct Constants {
         initialSize: 0.6,
         opacity: 1
     )
+    
+    internal static let screenWidth: CGFloat = UIScreen.main.bounds.maxX
+    
+    internal static let screenHeight: CGFloat = UIScreen.main.bounds.maxY
 }
 
 extension Constants.ScalableObject {

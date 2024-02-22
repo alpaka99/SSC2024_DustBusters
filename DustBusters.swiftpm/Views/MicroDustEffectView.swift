@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MicroDustEffectView: View {
     var body: some View {
-        Image("basketball")
+        Image("twodusts")
             .magnificationEffect(2, 0)
     }
 }
