@@ -7,15 +7,18 @@
 
 import ARKit
 import CoreML
+import RealityKit
 import UIKit
 
 class ARViewController: UIViewController {
     let crosshairImageName: String = "Crosshair"
+    let fingerHeartSilhouetteName: String = "fingerHeartFixed"
     let heartModelPath: String = "Resource/3dAssets/Effects.scn"
-    let targetModelPath: String = "Resource/3dAssets/Target.usdz"
+    let targetModelPath: String = "Resource/3dAssets/dustTarget.usdz"
     let initialScoreLabelText: String = "Score: 0"
-    let timeLimit: Double = 5
-    let handPosePredictionInterval: Int = 10
+    let pointLight = Lighting().light
+    let timeLimit: Double = 20
+    let handPosePredictionInterval: Int = 5
     let customDistance: Float = 20
     let targetNodeAmount: Int = 10
     
@@ -37,6 +40,8 @@ class ARViewController: UIViewController {
     private var resultLabel: UILabel!
     private var resetButton: UIButton!
     private var nextButton: UIButton!
+    private var fingerHeartSilhouetteView: UIImageView!
+    
     private var score: Int = 0 {
         didSet {
             if score == 10 {
@@ -58,13 +63,18 @@ class ARViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         arSceneView = ARSCNView(frame: view.bounds)
         arSceneView.session.delegate = self
         arSceneView.delegate = self
+        
+        arSceneView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(arSceneView)
-        viewWidth = Int(arSceneView.bounds.width)
-        viewHeight = Int(arSceneView.bounds.height)
+        
+        arSceneView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        arSceneView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+        arSceneView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        arSceneView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
         
         // setup game
         setUpGame()
@@ -88,7 +98,7 @@ class ARViewController: UIViewController {
                     2
                 ))
                 
-                if distance < 0.5 { // Assume 0.5 as the threshold
+                if distance < 1 { // Assume 0.5 as the threshold
                     score += 1
                     // Optionally, remove the targetNode from targetNodes and the scene
                     if let index = targetNodes.firstIndex(of: targetNode) {
@@ -166,7 +176,13 @@ class ARViewController: UIViewController {
         )
         scoreLabel.textAlignment = .center
         scoreLabel.text = initialScoreLabelText
+        
+        scoreLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         self.view.addSubview(scoreLabel)
+        
+        scoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 20).isActive = true
+        scoreLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
     }
     
     func setLayout() {
@@ -197,7 +213,7 @@ class ARViewController: UIViewController {
     
     func setUpInstructionLabel() {
         instructionLabel = UILabel()
-        instructionLabel.text = "Do fingerHeart with your hand to shoot heart!🫰"
+        instructionLabel.text = "Do finger heart with your hand to shoot hearts!🫰"
         
         instructionLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -215,30 +231,61 @@ class ARViewController: UIViewController {
         self.instructionLabel.alpha = 0
     }
     
-    func createTargets() {
-        for _ in 0..<targetNodeAmount {
-            guard let targetScene = SCNScene(named: targetModelPath) else {
-                fatalError("Failed to load \(targetModelPath).")
+    func createFingerHeartSilhouette() {
+        let fingerHeartSilhouetteImage = UIImage(named: fingerHeartSilhouetteName)
+        
+        guard let fingerHeartSilhouetteImage = fingerHeartSilhouetteImage else { return }
+        
+        fingerHeartSilhouetteView = UIImageView(image: fingerHeartSilhouetteImage)
+        
+        fingerHeartSilhouetteView.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.view.addSubview(fingerHeartSilhouetteView)
+        
+        fingerHeartSilhouetteView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        fingerHeartSilhouetteView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 20).isActive = true
+        
+    }
+    
+    func createTarget() -> SCNNode? {
+        guard let targetScene = SCNScene(named: targetModelPath) else {
+            fatalError("Failed to load \(targetModelPath).")
+        }
+        guard let targetNode = targetScene.rootNode.childNodes.first else { return nil }
+        targetNode.scale = SCNVector3(
+            0.002,
+            0.002,
+            0.002
+        )
+        let lookAtConstraint = SCNLookAtConstraint(target: arSceneView.pointOfView)
+        lookAtConstraint.isGimbalLockEnabled = true
+        targetNode.constraints = [lookAtConstraint]
+        
+        return targetNode
+    }
+    
+    func createTargetNodes() {
+        for _ in targetNodes.count..<targetNodeAmount {
+            if let targetNode = self.createTarget() {
+                targetNodes.append(targetNode)
             }
-            guard let targetNode = targetScene.rootNode.childNodes.first?.clone() else { return }
-            targetNode.scale = SCNVector3(
-                0.002,
-                0.002,
-                0.002
-            )
+        }
+    }
+    
+    func distributeTargetNode() {
+        let remainingTargetNodeNumber: Int = targetNodes.count
+        
+        for targetNode in targetNodes {
             targetNode.position = SCNVector3(
                 Float.random(in: -10...10),
                 Float.random(in: -5...5),
                 -10 // aprox 2 meters away
             )
             
-            let lookAtConstraint = SCNLookAtConstraint(target: arSceneView.pointOfView)
-            lookAtConstraint.isGimbalLockEnabled = true
-            targetNode.constraints = [lookAtConstraint]
-            
             arSceneView.scene.rootNode.addChildNode(targetNode)
-            targetNodes.append(targetNode)
         }
+        
+
     }
     
     func setModel() {
@@ -266,8 +313,8 @@ class ARViewController: UIViewController {
             guard let confidence = prediction.labelProbabilities[label] else { return }
 //            print("label:\(prediction.label)\nconfidence:\(confidence)")
             
-            // do this if prediction > 80%
-            if confidence > 0.8 {
+            // do this if prediction > 70%
+            if confidence > 0.7 {
                 DispatchQueue.main.async { [weak self] in
                     switch label {
                     case "heart":
@@ -322,14 +369,14 @@ class ARViewController: UIViewController {
             
             let move = SCNAction.move(
                 to: targetPosition,
-                duration: 0.6
+                duration: 0.7
             )
             
             let switchEffectAppearing = SCNAction.run { node in
                 self.isEffectAppearing = false
             }
             let fadeOut = SCNAction.fadeOut(duration: 0.5)
-
+//            print("trying to shoot heartnode")
             heartNode.runAction(.sequence(
                 [
                     fadeIn,
@@ -338,7 +385,7 @@ class ARViewController: UIViewController {
                     switchEffectAppearing
                 ]))
         } else {
-//            print("no heart node")
+            print("no heart node")
             prepareEffects()
             self.isEffectAppearing = false
         }
@@ -403,9 +450,9 @@ class ARViewController: UIViewController {
         }
         
         heart.scale = SCNVector3(
-            x: 0.005,
-            y: 0.005,
-            z: 0.005
+            x: 0.05,
+            y: 0.05,
+            z: 0.05
         )
         heartNode = heart
         arSceneView.scene.rootNode.addChildNode(heart)
@@ -416,6 +463,8 @@ class ARViewController: UIViewController {
         for node in self.targetNodes {
             node.removeFromParentNode()
         }
+        
+//        targetNodes = []
     }
 }
 
@@ -472,9 +521,10 @@ extension ARViewController: ARSessionDelegate {
     func setUpGame() {
         setARViewConfiguration()
         
-//        setupCrosshair()
         setUpInstructionLabel()
-        createTargets()
+        createFingerHeartSilhouette()
+        createTargetNodes()
+        distributeTargetNode()
 
         setModel()
         setupScoreLabel()
@@ -497,7 +547,8 @@ extension ARViewController: ARSessionDelegate {
         self.seconds = 0
         self.score = 0
         self.setARViewConfiguration()
-        self.createTargets()
+        self.createTargetNodes()
+        self.distributeTargetNode()
         self.showInstructionLabel()
         self.setModel()
         self.prepareEffects()
@@ -521,6 +572,18 @@ extension ARViewController: ARSCNViewDelegate {
             stopGame()
             showResult()
         }
+    }
+}
+
+class Lighting: Entity, HasPointLight {
+    required init() {
+        super.init()
+        
+        self.light = PointLightComponent(
+            color: .white,
+            intensity: 10000,
+            attenuationRadius: 20
+        )
     }
 }
 
