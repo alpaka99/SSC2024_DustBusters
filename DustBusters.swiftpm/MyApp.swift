@@ -4,11 +4,14 @@ import SwiftUI
 struct MyApp: App {
     var body: some Scene {
         WindowGroup {
-//            Color.blue
-//                .overlay {
-//                    MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: false))
-//                }
-            SizeCompareView(sizeCompareViewReducer: SizeCompareViewReducer(reducerId: "SizeCompareView"))
+            NavigationStack {
+                    MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: true))
+                    .background {
+                        CityLineView()
+                    }
+//                MicroDustEffectView()
+//                SwipeView()
+                }
         }
     }
 }

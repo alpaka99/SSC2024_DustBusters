@@ -18,16 +18,7 @@ protocol Reducer<States, Actions>: AnyObject, ObservableObject, Hashable {
     func reduce(states: inout States, action: Actions)
 }
 
-extension Reducer {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.reducerId == rhs.reducerId
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        
-    }
-    
-}
+
 
 protocol ReducerAction { }
 

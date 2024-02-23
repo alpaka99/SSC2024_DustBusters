@@ -39,15 +39,6 @@ struct SizeCompareView: View {
                         .padding(20)
                         .offset(x: 0.2)
                         .scaleEffect(scaleAmount)
-//                        .onChange(of: scaleAmount) { _ in
-//                            print("\(item.imageName): \(scaleAmount) x \(item.initialSize) = \(scaleAmount * item.initialSize) / offset: \(offset)")
-//                            if item.imageName == Constants.basketBallImageName {
-//                                print(String(repeating: "=", count: 40))
-//                            }
-//                        }
-                        .onTapGesture {
-                            print(item.imageName)
-                        }
                 }
             }
             .frame(maxWidth: UIScreen.main.bounds.width)
@@ -76,35 +67,3 @@ struct ScrollOffsetKey: PreferenceKey {
         value += nextValue()
     }
 }
-
-extension CGFloat {
-    static let one: Self = 1
-}
-
-//struct DetectScrollPosition: View {
-//    @State private var scrollPosition: CGPoint = .zero
-//    
-//    var body: some View {
-//        NavigationView {
-//            ScrollView {
-//                VStack {
-//                    ForEach((1...50), id: \.self) { row in
-//                        Text("Row \(row)")
-//                            .frame(height: 30)
-//                            .id(row)
-//                    }
-//                }
-//                .background(GeometryReader { geometry in
-//                    Color.clear
-//                        .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
-//                })
-//                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-//                    self.scrollPosition = value
-//                }
-//            }
-//            .coordinateSpace(name: "scroll")
-//            .navigationTitle("Scroll offset: \(scrollPosition.y)")
-//            .navigationBarTitleDisplayMode(.inline)
-//        }
-//    }
-//}

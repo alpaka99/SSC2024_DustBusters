@@ -22,7 +22,7 @@
     "modelParameters" : [
 
     ],
-    "author" : "hyebin",
+    "author" : "Go Seokhwan",
     "specificationVersion" : 4,
     "computePrecision" : "Float16",
     "isUpdatable" : "0",
