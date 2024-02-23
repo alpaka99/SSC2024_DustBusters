@@ -12,6 +12,9 @@ struct MyApp: App {
 //                MicroDustEffectView()
 //                SwipeView()
                 }
+            .onAppear {
+                AudioManager.shared.playSound(.samplesound)
+            }
         }
     }
 }

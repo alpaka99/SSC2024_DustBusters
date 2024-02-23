@@ -104,6 +104,8 @@ class ARViewController: UIViewController {
                     if let index = targetNodes.firstIndex(of: targetNode) {
                         targetNodes.remove(at: index)
                         targetNode.removeFromParentNode()
+                        HapticManager.shared.createHaptic(.medium)
+                        AudioManager.shared.playSound(.samplesound)
                     }
                 }
             }
