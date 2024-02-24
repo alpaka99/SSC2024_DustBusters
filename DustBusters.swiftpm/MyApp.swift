@@ -7,14 +7,16 @@ struct MyApp: App {
             NavigationStack {
                     MainView(mainViewReducer: MainViewReducer(isStartDisabled: false, isContinueDisabled: true))
                     .background {
-                        CityLineView()
+                        CityLineView(
+                            neighborhoodColor: .green,
+                            middleLineColor: .orange,
+                            skylineColor: .blue
+                        )
                     }
-//                MicroDustEffectView()
-//                SwipeView()
                 }
-            .onAppear {
-                AudioManager.shared.playSound(.samplesound)
-            }
+//            .onAppear {
+//                AudioManager.shared.playSound(.samplesound)
+//            }
         }
     }
 }

@@ -8,10 +8,18 @@
 import SwiftUI
 
 struct CityLineView: View {
+    @State var neighborhoodColor: Color
+    @State var middleLineColor: Color
+    @State var skylineColor: Color
+    
+    
     var body: some View {
-        NeighborhoodView(buildingColor: .brown)
+        NeighborhoodView(buildingColor: neighborhoodColor)
             .background {
-                SkyLineView(buildingColor: .blue)
+                MiddleLineView(buildingColor: middleLineColor)
+            }
+            .background {
+                SkyLineView(buildingColor: skylineColor)
             }
     }
 }

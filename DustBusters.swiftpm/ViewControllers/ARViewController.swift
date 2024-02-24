@@ -275,8 +275,6 @@ class ARViewController: UIViewController {
     }
     
     func distributeTargetNode() {
-        let remainingTargetNodeNumber: Int = targetNodes.count
-        
         for targetNode in targetNodes {
             targetNode.position = SCNVector3(
                 Float.random(in: -10...10),
