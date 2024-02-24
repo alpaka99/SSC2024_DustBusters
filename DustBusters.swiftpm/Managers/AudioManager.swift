@@ -35,7 +35,9 @@ final class AudioManager: EffectHelper {
         do {
             self.player?.prepareToPlay()
             player = try AVAudioPlayer(contentsOf: soundURL)
-            self.player?.play()
+            DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+                self?.player?.play()
+            }
         } catch {
             print("Something went wrong while playing sound :(")
         }
