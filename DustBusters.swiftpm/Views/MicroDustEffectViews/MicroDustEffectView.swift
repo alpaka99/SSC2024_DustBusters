@@ -199,8 +199,6 @@ struct MicroDustEffectView: View {
                                     .allowsHitTesting(isImageTouchEnabled)
                             }
                         }
-                    
-//                    TestView(startPosition: .zero)
                 }
                 .magnificationEffect(
                     $offset,
