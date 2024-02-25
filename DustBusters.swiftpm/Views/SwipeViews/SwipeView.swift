@@ -38,7 +38,7 @@ struct SwipeView: View {
             } overlayView: {
                 Color.brown
                     .overlay {
-                        Image("dustOverlay2")
+                        Image("dustOverlay")
                             .resizable()
                             .opacity(0.5)
                             .scaledToFill()
@@ -48,7 +48,7 @@ struct SwipeView: View {
                 isShowingModal: $isShowingFirstModal,
                 trigger: $firstTrigger,
                 modalColor: .constant(Color.appColor()),
-                messages: ["Key to reduce micro dusts is under this layer of micro dusts.", "Swipe off micro dusts to discover the key!"],
+                messages: ["Key to reduce micro dusts is here.", "Under this layer of micro dusts.", "Swipe off micro dusts to discover the key!"],
                 tapBackgroundToDismiss: true
             )
             .onChange(of: firstTrigger) { _ in
@@ -194,10 +194,6 @@ struct ScratchView<Content: View, OverlayView: View>: View {
                                     startingPoint = value.location
                                 }
                                 points.append(value.location)
-                                
-                                if points.count % 10 == 0 {
-                                    HapticManager.shared?.createHaptic(.swipe, false)
-                                }
                             }
                         }
                         .onEnded { value in

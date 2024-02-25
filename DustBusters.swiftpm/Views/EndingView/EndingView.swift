@@ -14,32 +14,47 @@ struct EndingView: View {
     @State private var isShowingSecondBox: Bool = false
     @State private var isShowingThirdBox: Bool = false
     
+//    @State private var color: Color = Color.appColor()
+    
+    let checkbox1: CheckBoxView = CheckBoxView(boxMessage: "message1")
+    let checkbox2: CheckBoxView = CheckBoxView(boxMessage: "message2")
+    let checkbox3: CheckBoxView = CheckBoxView(boxMessage: "message3")
+    
+    var color: Color {
+        return Color.appColor()
+    }
+    
     var body: some View {
         VStack {
             Spacer()
             
-            CheckBoxView(boxMessage: "message1")
+//            CheckBoxView(boxMessage: "message1")
+            checkbox1
                 .simultaneousGesture(
                     TapGesture()
                         .onEnded {
                             withAnimation(.easeInOut) {
                                 isShowingSecondBox = true
-                                
+                                Constants.appState = .halfway
+//                                color = Color.appColor()
+                                print(color)
                             }
                         }
                 )
-            
                 .padding()
                 .opacity(isShowingFirstBox ? 1 : 0)
             
             Spacer()
             
-            CheckBoxView(boxMessage: "message2")
+//            CheckBoxView(boxMessage: "message2")
+            checkbox2
                 .simultaneousGesture(
                     TapGesture()
                         .onEnded {
                             withAnimation(.easeInOut) {
                                 isShowingThirdBox = true
+                                Constants.appState = .clear
+                                print(Color.appColor())
                             }
                         }
                 )
@@ -48,7 +63,8 @@ struct EndingView: View {
             
             Spacer()
             
-            CheckBoxView(boxMessage: "message2")
+//            CheckBoxView(boxMessage: "message3")
+            checkbox3
                 .padding()
                 .opacity(isShowingThirdBox ? 1 : 0)
             
@@ -63,19 +79,10 @@ struct EndingView: View {
         }
         .background {
                 CityLineView(
-                    neighborhoodColor: .blue,
-                    middleLineColor: .indigo,
-                    skylineColor: .black
+                    neighborhoodColor: color.opacity(1),
+                    middleLineColor: color.opacity(0.5),
+                    skylineColor: color.opacity(0.2)
                 )
-        }
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    path = NavigationPath.init()
-                } label: {
-                    Text("Next")
-                }
-            }
         }
     }
 }

@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct MiddleLineView: BuildingView {
-    @State var buildingColor: Color
     @State var startingPoint: CGPoint = getCurrentStartingPoint()
+    @State var buildingColor: Color
+    
     
     var body: some View {
         Path { path in
