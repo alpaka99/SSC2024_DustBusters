@@ -107,7 +107,8 @@ class ARViewController: UIViewController {
 //                        HapticManager.shared.createHaptic(.medium)
                         
                         //MARK: Fix haptic manager
-                        HapticManager.shared?.playHaptic(duration: [], powers: [])
+                        
+                        HapticManager.shared?.createHaptic(.success, true)
                         AudioManager.shared.playSound(.samplesound)
                     }
                 }

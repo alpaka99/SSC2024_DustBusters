@@ -93,7 +93,24 @@ struct MicroDustEffectView: View {
                             height: proxy.size.height
                         )
                         .background {
-                            Color.blue
+                            switch tappedCounter {
+                            case 0:
+                                Color.red
+                            case 1:
+                                Color.brown
+                            case 2:
+                                Color.orange
+                            case 3:
+                                Color.yellow
+                            case 4:
+                                Color.green
+                            case 5:
+                                Color.blue
+                            case 6:
+                                Color.purple
+                            default:
+                                Color.blue
+                            }
                         }
                         .overlay { // tappable images
                             if isEverythingTapped {
@@ -129,7 +146,7 @@ struct MicroDustEffectView: View {
                                     .opacity(isSkinRashTapped ? 0 : 1)
                                     .onTapGesture {
                                         // when tapped skin
-                                        print("skinRash tapped")
+//                                        print("skinRash tapped")
                                         self.showPopdownAlert(.skinRash)
                                     }
                                     .allowsHitTesting(isImageTouchEnabled)
@@ -145,7 +162,7 @@ struct MicroDustEffectView: View {
                                     .opacity(isNoseTapped ? 0 : 1)
                                     .onTapGesture {
                                         // when tapped nose
-                                        print("nose tapped")
+//                                        print("nose tapped")
                                         self.showPopdownAlert(.nose)
                                     }
                                     .allowsHitTesting(isImageTouchEnabled)
@@ -161,7 +178,7 @@ struct MicroDustEffectView: View {
                                     .opacity(isLungTapped ? 0 : 1)
                                     .onTapGesture {
                                         // when tapped lung
-                                        print("lung tapped")
+//                                        print("lung tapped")
                                         self.showPopdownAlert(.lung)
                                     }
                                     .allowsHitTesting(isImageTouchEnabled)
@@ -177,7 +194,7 @@ struct MicroDustEffectView: View {
                                     .opacity(isVeinTapped ? 0 : 1)
                                     .onTapGesture {
                                         // when tapped vein
-                                        print("vein tapped")
+//                                        print("vein tapped")
                                         showPopdownAlert(.vein)
                                     }
                                     .allowsHitTesting(isImageTouchEnabled)
@@ -193,7 +210,7 @@ struct MicroDustEffectView: View {
                                     .opacity(isIntestineTapped ? 0 : 1)
                                     .onTapGesture {
                                         // when tapped intestine
-                                        print("Intestine tapped")
+//                                        print("Intestine tapped")
                                         self.showPopdownAlert(.intestine)
                                     }
                                     .allowsHitTesting(isImageTouchEnabled)
@@ -207,10 +224,16 @@ struct MicroDustEffectView: View {
                     size
                 )
                 
-                TestView(startPosition: CGPoint(
-                    x: proxy.size.width * 0.7,
-                    y: proxy.size.height * 0.1
-                ))
+                //                TestView(startPosition: CGPoint(
+                //                    x: proxy.size.width * 0.7,
+                //                    y: proxy.size.height * 0.1
+                //                ))
+                
+                HeartBeatsView(counter: $tappedCounter,
+                               startPosition: CGPoint(
+                                x: proxy.size.width * 0.7,
+                                y: proxy.size.height * 0.1
+                               ))
             }
             
         }
@@ -272,7 +295,10 @@ struct MicroDustEffectView: View {
                 self.isVeinTapped = true
             }
         }
-        self.tappedCounter += 1
+        
+        withAnimation {
+            self.tappedCounter += 1
+        }
     }
     
     private func setPopdownAlertMessage(_ bodyPart: BodyPart) {

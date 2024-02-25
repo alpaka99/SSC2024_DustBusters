@@ -9,66 +9,62 @@ import SwiftUI
 
 struct SwipeView: View {
     @State var isFinished: Bool = false
+    @State private var m: Int = 0
+    
+    let dustParticle: Circle = Circle()
     
     var body: some View {
         VStack {
             ScratchView(
-                cursorSize: 50,
+                cursorSize: 75,
                 isFinished: $isFinished
             ) {
                 // body content
-                VStack {
-                    Image("coffeebean")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding()
+                Color.black
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity
+                    )
+            } overlayView: {
+                Color.brown
+                    .overlay {
+                        Image("dustOverlay2")
+                            .resizable()
+                            .opacity(0.5)
+                            .scaledToFill()
+                    }
+            }
+        }
+        .ignoresSafeArea()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .top) {
+            if isFinished {
+                Text("What do you see?")
+                    .font(.system(size: 100))
+                    .foregroundStyle(Color.white)
+                    .padding()
+                    .onAppear {
+                        
+                    }
+            } else {
+                HStack(spacing: 20) {
+                    Text("Swipe of dust!")
+                        .font(.system(size: 100))
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.white)
                     
-                    Text("You've won")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.gray)
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "scribble.variable")
+                            .font(.system(size: 100))
+                            .foregroundColor(Color.white)
+                    }
+                    
                 }
                 .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } overlayView: {
-                // overlay content
-                Image("water")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
             }
             
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            Color.black.ignoresSafeArea()
-        }
-        .overlay(alignment: .top) {
-            HStack(spacing: 15) {
-                Button {
-                    
-                } label: {
-                    Image(systemName: "scribble.variable")
-                        .font(.title2)
-                        .foregroundColor(Color.white)
-                }
-                Text("Scratch Card")
-                    .font(.title)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color.white)
-                
-                Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
-                
-                Button {
-                    isFinished = false
-                } label: {
-                    Image("twodusts")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 55, height: 55)
-                        .clipShape(Circle())
-                }
-            }
-            .padding()
         }
     }
 }
@@ -81,12 +77,9 @@ struct ScratchView<Content: View, OverlayView: View>: View {
     // for gesture update
     @GestureState private var gestureLocation: CGPoint = .zero
     
-    
-    
     var content: Content
     var overlayView: OverlayView
     var cursorSize: CGFloat
-    
     
     init(
         cursorSize: CGFloat,
@@ -136,10 +129,14 @@ struct ScratchView<Content: View, OverlayView: View>: View {
                                     startingPoint = value.location
                                 }
                                 points.append(value.location)
+                                
+                                if points.count % 80 == 0 {
+                                    HapticManager.shared?.createHaptic(.rigidTwice, false)
+                                }
                             }
                         }
                         .onEnded { value in
-                            if points.count > 200 {
+                            if points.count > 400 {
                                 withAnimation {
                                     isFinished = true
                                 }
@@ -147,11 +144,9 @@ struct ScratchView<Content: View, OverlayView: View>: View {
                         }
                 )
         }
-        .frame(width: 300, height: 300)
-        .cornerRadius(20)
         .onChange(of: isFinished) { _ in
             if isFinished == false && points.isEmpty == false {
-                withAnimation(.easeInOut) {
+                withAnimation(.easeInOut(duration: 5)) {
                     resetView()
                 }
             }

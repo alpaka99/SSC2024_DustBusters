@@ -28,14 +28,18 @@ final class HapticManager: EffectHelper {
         }
     }
     
-    enum HapticType {
-        case soft, light, medium, heavy, rigid
-    }
-    
     enum HapticStyle {
         case rigidTwice
         case success
         case light(times: Int)
+        
+        case nearDeath
+        case superUnhealthy
+        case unHealthy
+        case normal
+        case semiHealthy
+        case healthy
+        case superHealthy
     }
     
     func stopHaptic() {
@@ -46,61 +50,16 @@ final class HapticManager: EffectHelper {
         }
     }
     
-    private func makePattern(
-        duration: [Double],
-        powers: [Float]
-    ) throws -> CHHapticPattern {
-        var events: [CHHapticEvent] = []
-        var relativeTime = 0.0
-        
-        duration.enumerated().forEach {
-            let duration = $0.element
-            let power = powers[$0.offset]
-            
-            let intensity = CHHapticEventParameter(
-                parameterID: .hapticIntensity,
-                value: power
-            )
-            let sharpness = CHHapticEventParameter(
-                parameterID: .hapticSharpness,
-                value: 0.6
-            )
-            
-            let params = [intensity, sharpness]
-            
-            let event = CHHapticEvent(
-                eventType: .hapticContinuous,
-                parameters: params,
-                relativeTime: 1,
-                duration: duration
-            )
-            
-            relativeTime += duration
-            events.append(event)
-        }
-        
-        return try CHHapticPattern(
-            events: events,
-            parameters: []
-        )
-    }
-    
-    func playHaptic(
-        duration: [Double],
-        powers: [Float]
-    ) {
+    func createHaptic(_ hapticStyle: HapticStyle, _ loop: Bool) {
         do {
             try hapticAdvancedPlayer?.stop(atTime: 0)
             
-            let pattern = try makePattern(
-                duration: duration,
-                powers: powers
-            )
+            guard let pattern = generateHapticPattern(hapticStyle) else { return }
             
             try hapticEngine?.start()
             hapticAdvancedPlayer = try hapticEngine?.makeAdvancedPlayer(with: pattern)
-            hapticAdvancedPlayer?.loopEnabled = true
-            hapticAdvancedPlayer?.playbackRate = 1.0
+            hapticAdvancedPlayer?.loopEnabled = loop
+            hapticAdvancedPlayer?.playbackRate = 0.4
             
             
             try hapticAdvancedPlayer?.start(atTime: 0)
@@ -202,6 +161,126 @@ final class HapticManager: EffectHelper {
                 parameters: []
             )
             return pattern
+            
+        case .nearDeath:
+            let firstEvent = createEvent(0.3, 0.7, 0.5)
+            let secondEvent = createEvent(0.3, 0.7, 0.7)
+            let endEvent = createEvent(0, 0, 1.2)
+            
+            let events: [CHHapticEvent] = [firstEvent, secondEvent, endEvent]
+            
+            
+            return createHapticPattern(events)
+            
+        case .superUnhealthy:
+            let firstEvent = createEvent(0.4, 0.6, 0.4)
+            let secondEvent = createEvent(0.4, 0.6, 0.5)
+            let thirdEvent = createEvent(0.3, 0.7, 0.7)
+            let fourthEvent = createEvent(0.3, 0.7, 0.8)
+            let endEvent = createEvent(0, 0, 1.2)
+            
+            let events: [CHHapticEvent] = [firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent]
+            
+            return createHapticPattern(events)
+            
+        case .unHealthy:
+            let firstEvent = createEvent(0.6, 0.4, 0.6)
+            let secondEvent = createEvent(0.6, 0.4, 0.65)
+            let thirdEvent = createEvent(0.5, 0.5, 0.7)
+            let fourthEvent = createEvent(0.5, 0.5, 0.75)
+            let endEvent = createEvent(0, 0, 1.2)
+            
+            return createHapticPattern([firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent])
+            
+        case .normal:
+            let firstEvent = createEvent(0.6, 0.4, 0.5)
+            let secondEvent = createEvent(0.6, 0.4, 0.7)
+            let endEvent = createEvent(0, 0, 1.2)
+            
+            let events = [firstEvent, secondEvent, endEvent]
+
+            return createHapticPattern(events)
+            
+        case .semiHealthy:
+            let firstEvent = createEvent(0.2, 0.6, 0.35)
+            let secondEvent = createEvent(0.8, 0.3, 0.4)
+            let thirdEvent = createEvent(0.5, 0.4, 0.5)
+            let fourthEvent = createEvent(0.3, 0.6, 0.6)
+            let endEvent = createEvent(0, 0, 1.2)
+            
+            let events = [firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent]
+            
+            return createHapticPattern(events)
+            
+        case .healthy:
+            let firstEvent = createEvent(0.3, 0.6, 0.4)
+            let secondEvent = createEvent(0.8, 0.3, 0.5)
+            let thirdEvent = createEvent(0.8, 0.6, 0.6)
+            let fourthEvent = createEvent(0.3, 0.6, 0.7)
+            
+            let fifthEvent = createEvent(0.8, 0.3, 0.8)
+            let sixthEvent = createEvent(0.3, 0.6, 0.9)
+            let endEvent = createEvent(0, 0, 1.2)
+            
+            let events = [firstEvent, secondEvent, thirdEvent, fourthEvent, fifthEvent, sixthEvent, endEvent]
+            
+            return createHapticPattern(events)
+            
+        case .superHealthy:
+            let firstEvent = createEvent(0.8, 0.3, 0.5)
+            let secondEvent = createEvent(0.6, 0.5, 0.6)
+            let thirdEvent = createEvent(1, 0.2, 0.7)
+            let fourthEvent = createEvent(0.9, 0.3, 0.8)
+            let endEvent = createEvent(0, 0, 1.2)
+            
+            let events = [firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent]
+            
+            return createHapticPattern(events)
         }
+    }
+    
+    
+    private func createIntensity(_ intensity: Float) -> CHHapticEventParameter {
+        let hapticIntensity: CHHapticEventParameter = CHHapticEventParameter(
+            parameterID: .hapticIntensity,
+            value: intensity
+        )
+        
+        return hapticIntensity
+    }
+    
+    private func createSharpness(_ sharpness: Float) -> CHHapticEventParameter {
+        let hapticSharpness: CHHapticEventParameter = CHHapticEventParameter(
+            parameterID: .hapticSharpness,
+            value: sharpness
+        )
+        
+        return hapticSharpness
+    }
+    
+    private func createEvent(
+        _ intensity: Float,
+        _ sharpness: Float,
+        _ relativeTime: TimeInterval
+    ) -> CHHapticEvent {
+        let intensity = createIntensity(intensity)
+        let sharpness = createSharpness(sharpness)
+        
+        let hapticEvent: CHHapticEvent = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [intensity, sharpness],
+            relativeTime: relativeTime
+        )
+        
+        return hapticEvent
+    }
+    
+    private func createHapticPattern(_ events: [CHHapticEvent]) -> CHHapticPattern? {
+        let pattern = try? CHHapticPattern(
+            events: events,
+            parameters: []
+        )
+        
+        return pattern
     }
 }

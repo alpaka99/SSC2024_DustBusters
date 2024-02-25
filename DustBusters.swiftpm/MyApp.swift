@@ -16,8 +16,11 @@ struct MyApp: App {
 //                }
             MicroDustEffectView()
                 .ignoresSafeArea()
+//            
+//            SwipeView()
+//                .ignoresSafeArea()
+//            TestView()
             
-//            TestView(startPosition: .zero)
         }
     }
 }
