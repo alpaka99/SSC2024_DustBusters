@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NeighborhoodView: BuildingView {
     @State internal var startingPoint: CGPoint = getCurrentStartingPoint()
-    @State internal var buildingColor: Color
+    @Binding var buildingColor: Color
     
     var body: some View {
         Path { path in
@@ -210,6 +210,6 @@ struct NeighborhoodView: BuildingView {
 
 struct NeighborhoodView_Preview: PreviewProvider {
     static var previews: some View {
-        NeighborhoodView(buildingColor: .green)
+        NeighborhoodView(buildingColor: .constant(.green))
     }
 }

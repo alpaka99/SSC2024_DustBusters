@@ -58,7 +58,7 @@ struct ModalViewModifier: ViewModifier {
                         .frame(maxWidth: 500)
                         .background {
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(LinearGradient(colors: [.white, .orange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .fill(LinearGradient(colors: [.white, modalColor], startPoint: .topLeading, endPoint: .bottomTrailing))
                                 .frame(width: 500, height: 500)
                                 .shadow(radius: 10, x: 20, y: 20)
                                 .overlay(alignment: .bottomTrailing) {

@@ -29,9 +29,7 @@ struct ARView: View {
         switch viewToShow {
         case .beforeGame:
             CityLineView(
-                neighborhoodColor: Color.appColor().opacity(1),
-                middleLineColor: Color.appColor().opacity(0.5),
-                skylineColor: Color.appColor().opacity(0.2)
+                color: .constant(.orange)
             )
                 .modalView(
                     isShowingModal: $isShowingFirstModal,
@@ -77,11 +75,7 @@ struct ARView: View {
                     }
                 }
         case .gameEnded:
-            CityLineView(
-                neighborhoodColor: Color.appColor().opacity(1),
-                middleLineColor: Color.appColor().opacity(0.5),
-                skylineColor: Color.appColor().opacity(0.2)
-            )
+            CityLineView(color: .constant(.orange))
             .modalView(
                 isShowingModal: $isShowingSecondModal,
                 trigger: $secondTrigger,

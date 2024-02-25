@@ -4,7 +4,7 @@ struct HomeView: View {
     @Binding var path: NavigationPath
     @State private var isShowingModal: Bool = true
     @State private var trigger: Bool = false
-    @State private var modalColor: Color = Color.appColor()
+    @State private var appColor: Color = Color.appColor()
     
     var body: some View {
         VStack {
@@ -38,12 +38,12 @@ struct HomeView: View {
             Spacer()
         }
         .background {
-            CityLineView(neighborhoodColor: Color.appColor().opacity(1), middleLineColor: Color.appColor().opacity(0.5), skylineColor: Color.appColor().opacity(0.2))
+            CityLineView(color: $appColor)
         }
         .modalView(
             isShowingModal: $isShowingModal,
             trigger: $trigger,
-            modalColor: $modalColor,
+            modalColor: .constant(.orange),
             messages: ["Welcome to Dust Busters!", "In this app we are going to get rid of Micro dusts by following steps.", "Let's Play!"],
             tapBackgroundToDismiss: true
         )

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MiddleLineView: BuildingView {
     @State var startingPoint: CGPoint = getCurrentStartingPoint()
-    @State var buildingColor: Color
+    @Binding var buildingColor: Color
     
     
     var body: some View {
@@ -161,7 +161,7 @@ struct MiddleLineView: BuildingView {
 struct MiddleLineView_Preview: PreviewProvider {
     static var previews: some View {
         MiddleLineView(
-            buildingColor: .orange
+            buildingColor: .constant(.orange)
         )
     }
 }

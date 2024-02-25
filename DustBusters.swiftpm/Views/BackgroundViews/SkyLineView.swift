@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SkyLineView: BuildingView {
     @State internal var startingPoint: CGPoint = getCurrentStartingPoint()
-    @State internal var buildingColor: Color
+    @Binding var buildingColor: Color
     
     var body: some View {
         Path { path in
@@ -155,6 +155,6 @@ struct SkyLineView: BuildingView {
 
 struct SkyLineView_Preview: PreviewProvider {
     static var previews: some View {
-        SkyLineView(buildingColor: .blue)
+        SkyLineView(buildingColor: .constant(.blue))
     }
 }
