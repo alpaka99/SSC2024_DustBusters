@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct SwipeView: View {
+    @Binding var path: NavigationPath
+    
     @State var isFinished: Bool = false
-    @State private var m: Int = 0
+    @State private var isShowingBottomMessage: Bool = false
     
     let dustParticle: Circle = Circle()
     
@@ -37,15 +39,30 @@ struct SwipeView: View {
         }
         .ignoresSafeArea()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .top) {
+        .overlay {
             if isFinished {
-                Text("What do you see?")
-                    .font(.system(size: 100))
-                    .foregroundStyle(Color.white)
-                    .padding()
-                    .onAppear {
-                        
+                VStack {
+                    Text("What do you see? Nothing?")
+                        .font(.system(size: 100))
+                        .foregroundStyle(Color.white)
+                        .padding()
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                                withAnimation(.easeInOut(duration: 2)) {
+                                    isShowingBottomMessage = true
+                                }
+                            }
+                        }
+                    
+                    Spacer()
+                    
+                    if isShowingBottomMessage {
+                        Text("There is you!\nYou are the Key to reduce microdust from air")
+                            .font(.system(size: 100))
+                            .foregroundStyle(Color.white)
+                            .padding()
                     }
+                }
             } else {
                 HStack(spacing: 20) {
                     Text("Swipe of dust!")
@@ -64,7 +81,15 @@ struct SwipeView: View {
                 }
                 .padding()
             }
-            
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    path.append(Constants.NavigationValue.endingView)
+                } label: {
+                    Text("Next")
+                }
+            }
         }
     }
 }
@@ -130,14 +155,14 @@ struct ScratchView<Content: View, OverlayView: View>: View {
                                 }
                                 points.append(value.location)
                                 
-                                if points.count % 80 == 0 {
-                                    HapticManager.shared?.createHaptic(.rigidTwice, false)
+                                if points.count % 10 == 0 {
+                                    HapticManager.shared?.createHaptic(.swipe, false)
                                 }
                             }
                         }
                         .onEnded { value in
                             if points.count > 400 {
-                                withAnimation {
+                                withAnimation(.easeInOut(duration: 2)) {
                                     isFinished = true
                                 }
                             }
@@ -146,7 +171,7 @@ struct ScratchView<Content: View, OverlayView: View>: View {
         }
         .onChange(of: isFinished) { _ in
             if isFinished == false && points.isEmpty == false {
-                withAnimation(.easeInOut(duration: 5)) {
+                withAnimation(.easeInOut(duration: 2)) {
                     resetView()
                 }
             }
@@ -173,8 +198,9 @@ struct ScratchMask: Shape {
 
 
 struct SwipeView_Preview: PreviewProvider {
+    @State static var path: NavigationPath = .init()
     static var previews: some View {
-        SwipeView()
+        SwipeView(path: $path)
     }
 }
 

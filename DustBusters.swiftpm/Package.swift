@@ -30,7 +30,7 @@ let package = Package(
                 .portrait,
                 .landscapeRight,
                 .landscapeLeft,
-                .portraitUpsideDown(.when(deviceFamilies: [.pad]))
+//                .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
             capabilities: [
                 .camera(purposeString: "Need to use camera for DustBusters!")

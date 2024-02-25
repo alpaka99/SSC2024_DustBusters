@@ -24,6 +24,7 @@ final class HapticManager: EffectHelper {
         let hapticCapability = CHHapticEngine.capabilitiesForHardware()
         
         guard hapticCapability.supportsHaptics else {
+            print("This device cannot use haptic feedback")
             return nil
         }
     }
@@ -40,6 +41,8 @@ final class HapticManager: EffectHelper {
         case semiHealthy
         case healthy
         case superHealthy
+        
+        case swipe
     }
     
     func stopHaptic() {
@@ -163,8 +166,8 @@ final class HapticManager: EffectHelper {
             return pattern
             
         case .nearDeath:
-            let firstEvent = createEvent(0.3, 0.7, 0.5)
-            let secondEvent = createEvent(0.3, 0.7, 0.7)
+            let firstEvent = createEvent(0.6, 0.7, 0.5)
+            let secondEvent = createEvent(0.6, 0.7, 0.7)
             let endEvent = createEvent(0, 0, 1.2)
             
             let events: [CHHapticEvent] = [firstEvent, secondEvent, endEvent]
@@ -173,10 +176,10 @@ final class HapticManager: EffectHelper {
             return createHapticPattern(events)
             
         case .superUnhealthy:
-            let firstEvent = createEvent(0.4, 0.6, 0.4)
-            let secondEvent = createEvent(0.4, 0.6, 0.5)
-            let thirdEvent = createEvent(0.3, 0.7, 0.7)
-            let fourthEvent = createEvent(0.3, 0.7, 0.8)
+            let firstEvent = createEvent(0.8, 0.6, 0.4)
+            let secondEvent = createEvent(0.8, 0.6, 0.5)
+            let thirdEvent = createEvent(0.6, 0.7, 0.7)
+            let fourthEvent = createEvent(0.6, 0.7, 0.8)
             let endEvent = createEvent(0, 0, 1.2)
             
             let events: [CHHapticEvent] = [firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent]
@@ -184,17 +187,17 @@ final class HapticManager: EffectHelper {
             return createHapticPattern(events)
             
         case .unHealthy:
-            let firstEvent = createEvent(0.6, 0.4, 0.6)
-            let secondEvent = createEvent(0.6, 0.4, 0.65)
-            let thirdEvent = createEvent(0.5, 0.5, 0.7)
-            let fourthEvent = createEvent(0.5, 0.5, 0.75)
+            let firstEvent = createEvent(1.2, 0.4, 0.6)
+            let secondEvent = createEvent(1.2, 0.4, 0.65)
+            let thirdEvent = createEvent(1.0, 0.5, 0.8)
+            let fourthEvent = createEvent(1.0, 0.5, 0.85)
             let endEvent = createEvent(0, 0, 1.2)
             
             return createHapticPattern([firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent])
             
         case .normal:
-            let firstEvent = createEvent(0.6, 0.4, 0.5)
-            let secondEvent = createEvent(0.6, 0.4, 0.7)
+            let firstEvent = createEvent(1.2, 0.4, 0.5)
+            let secondEvent = createEvent(1.2, 0.4, 0.7)
             let endEvent = createEvent(0, 0, 1.2)
             
             let events = [firstEvent, secondEvent, endEvent]
@@ -202,10 +205,10 @@ final class HapticManager: EffectHelper {
             return createHapticPattern(events)
             
         case .semiHealthy:
-            let firstEvent = createEvent(0.2, 0.6, 0.35)
-            let secondEvent = createEvent(0.8, 0.3, 0.4)
-            let thirdEvent = createEvent(0.5, 0.4, 0.5)
-            let fourthEvent = createEvent(0.3, 0.6, 0.6)
+            let firstEvent = createEvent(0.4, 0.6, 0.35)
+            let secondEvent = createEvent(1.6, 0.3, 0.4)
+            let thirdEvent = createEvent(1.0, 0.4, 0.5)
+            let fourthEvent = createEvent(0.6, 0.6, 0.6)
             let endEvent = createEvent(0, 0, 1.2)
             
             let events = [firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent]
@@ -213,13 +216,13 @@ final class HapticManager: EffectHelper {
             return createHapticPattern(events)
             
         case .healthy:
-            let firstEvent = createEvent(0.3, 0.6, 0.4)
-            let secondEvent = createEvent(0.8, 0.3, 0.5)
-            let thirdEvent = createEvent(0.8, 0.6, 0.6)
-            let fourthEvent = createEvent(0.3, 0.6, 0.7)
+            let firstEvent = createEvent(0.6, 0.6, 0.4)
+            let secondEvent = createEvent(1.6, 0.3, 0.5)
+            let thirdEvent = createEvent(1.6, 0.6, 0.6)
+            let fourthEvent = createEvent(0.6, 0.6, 0.7)
             
-            let fifthEvent = createEvent(0.8, 0.3, 0.8)
-            let sixthEvent = createEvent(0.3, 0.6, 0.9)
+            let fifthEvent = createEvent(1.6, 0.3, 0.8)
+            let sixthEvent = createEvent(0.6, 0.6, 0.9)
             let endEvent = createEvent(0, 0, 1.2)
             
             let events = [firstEvent, secondEvent, thirdEvent, fourthEvent, fifthEvent, sixthEvent, endEvent]
@@ -227,16 +230,26 @@ final class HapticManager: EffectHelper {
             return createHapticPattern(events)
             
         case .superHealthy:
-            let firstEvent = createEvent(0.8, 0.3, 0.5)
-            let secondEvent = createEvent(0.6, 0.5, 0.6)
-            let thirdEvent = createEvent(1, 0.2, 0.7)
-            let fourthEvent = createEvent(0.9, 0.3, 0.8)
+            let firstEvent = createEvent(1.6, 0.3, 0.5)
+            let secondEvent = createEvent(1.2, 0.5, 0.6)
+            let thirdEvent = createEvent(2, 0.2, 0.7)
+            let fourthEvent = createEvent(1.8, 0.3, 0.8)
             let endEvent = createEvent(0, 0, 1.2)
             
             let events = [firstEvent, secondEvent, thirdEvent, fourthEvent, endEvent]
             
             return createHapticPattern(events)
+            
+            
+        case .swipe:
+            let event = createEvent(0.4, 0.5, 0)
+            
+            let events = [event]
+            
+            return createHapticPattern(events)
         }
+        
+        
     }
     
     

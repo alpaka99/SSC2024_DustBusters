@@ -10,16 +10,49 @@ import SwiftUI
 import UIKit
 
 struct ARView: View {
-    let arviewReducer: any Reducer
+    @Binding var path: NavigationPath
     @State private var arViewControllerContainer: ARViewControllerContainer? = ARViewControllerContainer()
     let arViewFinishedPublisher = NotificationCenter.default.publisher(for: Notification.Name("ARViewEndNotification"))
-    @State private var viewToShow: ViewToShow = .arView
+    @State private var viewToShow: ViewToShow = .beforeGame
+    
+    @State private var isShowingFirstModal: Bool = true
+    @State private var firstTrigger: Bool = false
+    
+    @State private var isShowingSecondModal: Bool = false
+    @State private var secondTrigger: Bool = false
+    
     enum ViewToShow {
-        case arView, tutorial
+        case beforeGame, arView, gameEnded
     }
     
     var body: some View {
         switch viewToShow {
+        case .beforeGame:
+            CityLineView(
+                neighborhoodColor: Color.appColor().opacity(1),
+                middleLineColor: Color.appColor().opacity(0.5),
+                skylineColor: Color.appColor().opacity(0.2)
+            )
+                .modalView(
+                    isShowingModal: $isShowingFirstModal,
+                    trigger: $firstTrigger,
+                    modalColor: .constant(.orange),
+                    messages: ["Using your device's camera,", "and your love for community,", "We are going to catch micro dust...", "With finger heart! 🫰"],
+                    tapBackgroundToDismiss: false
+                )
+                .onChange(of: firstTrigger) { _ in
+                    self.viewToShow = .arView
+                }
+                .toolbar {
+                    ToolbarItem {
+                        Button {
+                            isShowingFirstModal = true
+                        } label: {
+                            Image(systemName: "questionmark.circle")
+                                .font(.largeTitle)
+                        }
+                    }
+                }
         case .arView:
             arViewControllerContainer
                 .onDisappear {
@@ -28,11 +61,50 @@ struct ARView: View {
                 .onReceive(arViewFinishedPublisher) { _ in
                     // MARK: endARView
                     self.arViewControllerContainer = nil
-                    viewToShow = .tutorial
+                    withAnimation {
+                        isShowingSecondModal = true
+                    }
+                    viewToShow = .gameEnded
                 }
-        case .tutorial:
-            ModalView(modalText: ["To NextView", "Lets go"])
+                .navigationBarBackButtonHidden(true)
+                .toolbar {
+                    ToolbarItem {
+                        Button {
+                            self.viewToShow = .gameEnded
+                        } label: {
+                            Text("Next")
+                        }
+                    }
+                }
+        case .gameEnded:
+            CityLineView(
+                neighborhoodColor: Color.appColor().opacity(1),
+                middleLineColor: Color.appColor().opacity(0.5),
+                skylineColor: Color.appColor().opacity(0.2)
+            )
+            .modalView(
+                isShowingModal: $isShowingSecondModal,
+                trigger: $secondTrigger,
+                modalColor: .constant(Color.appColor()),
+                messages: ["Great job on catching micro dusts!", "Like you saw, there are many micro dusts around us.", "And over the last 20 years, micro dusts have increased more than 30%.","So what happens to the rest of micro dusts?"],
+                tapBackgroundToDismiss: true
+            )
+            .onChange(of: secondTrigger) { _ in
+                path.append(Constants.NavigationValue.microDustEffectView)
+            }
+            .toolbar {
+                ToolbarItem {
+                    Button {
+                        isShowingSecondModal = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.largeTitle)
+                    }
+                }
+            }
+                
         }
+        
     }
     
     

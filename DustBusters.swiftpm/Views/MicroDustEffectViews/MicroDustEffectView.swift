@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 
 struct MicroDustEffectView: View {
+    @Binding var path: NavigationPath
+    
     @State private var size: CGFloat = 0
     @State private var touchPosition: CGPoint = .zero
     @State private var isTextTouched: Bool = false
@@ -25,62 +27,68 @@ struct MicroDustEffectView: View {
     @State private var message: String = ""
     @State private var isImageTouchEnabled: Bool = true
     
-    private var isPortrait: Bool = UIDevice.current.orientation.isPortrait
+    @State private var isShowingFirstModal: Bool = true
+    @State private var firstTrigger: Bool = false
+    
+    @State private var isShowingSecondModal: Bool = false
+    @State private var secondTrigger: Bool = false
+    
+    var isPortrait: Bool = UIDevice.current.orientation.isPortrait
     
     private var eyesOffset: CGPoint {
-        if isPortrait {
-            return CGPoint(x: -360, y: 0)
-        } else {
+//        if !isPortrait {
+//            return CGPoint(x: -360, y: 0)
+//        } else {
             return CGPoint(x: 0, y: -360)
-        }
+//        }
     }
     
     private var skinOffset: CGPoint {
-        if isPortrait {
-            return CGPoint(x: -80, y: -140)
-        } else {
+//        if !isPortrait {
+//            return CGPoint(x: -80, y: -140)
+//        } else {
             return CGPoint(x: -140, y: -80)
-        }
+//        }
     }
     
     private var noseOffset: CGPoint {
-        if isPortrait {
-            return CGPoint(x: -330, y: 0)
-        } else {
+//        if !isPortrait {
+//            return CGPoint(x: -330, y: 0)
+//        } else {
             return CGPoint(x: 0, y: -330)
-        }
+//        }
     }
     
     private var lungOffset: CGPoint {
-        if isPortrait {
-            return CGPoint(x: -160, y: 0)
-        } else {
+//        if !isPortrait {
+//            return CGPoint(x: -160, y: 0)
+//        } else {
             return CGPoint(x: 0, y: -160)
-        }
+//        }
     }
     
     private var veinOffset: CGPoint {
-        if isPortrait {
-            return CGPoint(x: 150, y: 50)
-        } else {
+//        if !isPortrait {
+//            return CGPoint(x: 150, y: 50)
+//        } else {
             return CGPoint(x: 50, y: 150)
-        }
+//        }
     }
     
     private var intestineOffset: CGPoint {
-        if isPortrait {
-            return CGPoint(x: -40, y: 0)
-        } else {
+//        if !isPortrait {
+//            return CGPoint(x: -40, y: 0)
+//        } else {
             return CGPoint(x: 0, y: -40)
-        }
+//        }
     }
     
     private var smileyFaceOffset: CGPoint {
-        if isPortrait {
-            return CGPoint(x: -350, y: 0)
-        } else {
+//        if !isPortrait {
+//            return CGPoint(x: -350, y: 0)
+//        } else {
             return CGPoint(x: 0, y: -350)
-        }
+//        }
     }
     
     var body: some View {
@@ -95,7 +103,9 @@ struct MicroDustEffectView: View {
                         .background {
                             switch tappedCounter {
                             case 0:
-                                Color.red
+                                LinearGradient(colors: [.purple, .red]
+                                               , startPoint: .bottom, endPoint: .top)
+//                                Color.red
                             case 1:
                                 Color.brown
                             case 2:
@@ -224,23 +234,36 @@ struct MicroDustEffectView: View {
                     size
                 )
                 
-                //                TestView(startPosition: CGPoint(
-                //                    x: proxy.size.width * 0.7,
-                //                    y: proxy.size.height * 0.1
-                //                ))
-                
                 HeartBeatsView(counter: $tappedCounter,
                                startPosition: CGPoint(
                                 x: proxy.size.width * 0.7,
                                 y: proxy.size.height * 0.1
                                ))
             }
-            
         }
+        .ignoresSafeArea()
         .popdownAlert(
             isPresented: $isPopdownAlertPresent,
             message: $message
         )
+
+        .modalView(
+            isShowingModal: $isShowingFirstModal,
+            trigger: $firstTrigger,
+            modalColor: .constant(Color.appColor()),
+            messages: ["Micro dust floats on air.", "And while they are floating, they can enter our body and make us sick", "Because they are so small and light, they get into deepest part of our body", "Examine each part of our body with magnifying glass", "When magnified, tap on the symptoms to cure this person!"],
+            tapBackgroundToDismiss: true
+        )
+        .modalView(
+            isShowingModal: $isShowingSecondModal,
+            trigger: $secondTrigger,
+            modalColor: .constant(Color.appColor()),
+            messages: ["Great job on healing this person!", "Like you saw, all this and more sickness can be caused by micro dusts.", "It is important to reduce micro dusts in air we breath!", "But how?"],
+            tapBackgroundToDismiss: true
+        )
+        .onChange(of: firstTrigger) { _ in
+            isShowingFirstModal = false
+        }
         .onChange(of: tappedCounter) { _ in
             if tappedCounter >= 6 {
                 self.checkEverythingTapped()
@@ -249,12 +272,27 @@ struct MicroDustEffectView: View {
         .onChange(of: isPopdownAlertPresent) { _ in
             self.isImageTouchEnabled = !isPopdownAlertPresent
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if isEverythingTapped {
+                        isShowingSecondModal = true
+                    } else {
+                        isShowingFirstModal = true
+                    }
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.largeTitle)
+                }
+            }
+        }
     }
     
     private func checkEverythingTapped() {
         if isEyeTapped && isNoseTapped && isLungTapped && isSkinRashTapped && isIntestineTapped && isVeinTapped {
             withAnimation {
                 self.isEverythingTapped = true
+                self.isShowingSecondModal = true
             }
         }
     }
@@ -406,7 +444,8 @@ struct MagnificationEffectHelper<Content: View>: View {
 
 
 struct MicroDustEffect_Preview: PreviewProvider {
+    @State static var path: NavigationPath = .init()
     static var previews: some View {
-        MicroDustEffectView()
+        MicroDustEffectView(path: $path)
     }
 }

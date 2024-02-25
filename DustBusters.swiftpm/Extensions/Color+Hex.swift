@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 extension Color {
-    func fromHex(_ hexCode: String, _ alpha: CGFloat = 1.0) -> Self {
+    static func fromHex(_ hexCode: String, _ alpha: CGFloat = 1.0) -> Self {
         var hexFormatted: String = hexCode.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).uppercased()
         
         if hexFormatted.hasPrefix("#") {
@@ -28,4 +28,20 @@ extension Color {
         
         return Color(uiColor: hexUIColor)
     }
+    
+    static func appColor() -> Self {
+        switch Constants.appState {
+        case .initial:
+            return Self.orange
+        case .halfway:
+            return Self.green
+        case .clear:
+            return Self.blue
+        }
+    }
+}
+
+public enum CustomColors: String {
+    case semiGray = "#D9D9D9"
+    
 }

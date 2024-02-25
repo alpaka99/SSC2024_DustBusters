@@ -8,64 +8,125 @@
 import Foundation
 import SwiftUI
 
-struct ModalView: View {
-    let borderColor: Color = .white
-    let borderWidth: CGFloat = 20
-    let modalText: [String]
-    @State private var textNumber: Int = 0
+extension View {
+    func modalView(
+        isShowingModal: Binding<Bool>,
+        trigger: Binding<Bool>,
+        modalColor: Binding<Color>,
+        messages: [String],
+        tapBackgroundToDismiss: Bool
+    ) -> some View {
+        modifier(ModalViewModifier(
+            isShowingModal: isShowingModal,
+            trigger: trigger,
+            modalColor: modalColor,
+            messages: messages,
+            tapBackgroundToDismiss: tapBackgroundToDismiss
+        ))
+    }
+}
+
+struct ModalViewModifier: ViewModifier {
+    @Binding var isShowingModal: Bool
+    @Binding var trigger: Bool
+    @Binding var modalColor: Color
+    @State private var messageIndex: Int = 0
+    let messages: [String]
+    let tapBackgroundToDismiss: Bool
     
-    var body: some View {
-        Group {
-            Rectangle()
-                .frame(width: 400, height: 400)
-                .blendMode(.destinationOut)
-                .overlay {
-                    Text(modalText[textNumber])
-                }
-                .overlay {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            
-                            Button {
-                                // 추후에 ModalViewReducer로 분리
-                                if textNumber > 0 {
-                                    textNumber -= 1
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if isShowingModal {
+                    Color.black
+                        .opacity(0.5)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            if tapBackgroundToDismiss == true {
+                                withAnimation {
+                                    isShowingModal = false
                                 }
-                            } label: {
-                                Text("Back")
-                            }
-                            
-                            Button {
-                                if textNumber < modalText.count - 1 {
-                                    textNumber += 1
-                                }
-                            } label: {
-                                Text("Next")
                             }
                         }
-                    }
-                    .padding(borderWidth)
                 }
-        }
-        .border(borderColor, width: borderWidth)
+            }
+            .overlay(alignment: .center) {
+                if isShowingModal {
+                    Text(messages[messageIndex])
+                        .font(.largeTitle)
+                        .padding()
+                        .frame(maxWidth: 500)
+                        .background {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(LinearGradient(colors: [.white, .orange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(width: 500, height: 500)
+                                .shadow(radius: 10, x: 20, y: 20)
+                                .overlay(alignment: .bottomTrailing) {
+                                    Button { // Next button
+                                        if self.messageIndex < self.messages.count - 1 {
+                                            self.messageIndex += 1
+                                        } else {
+                                            trigger.toggle()
+                                        }
+                                    } label: {
+                                        Text("Next ▶")
+                                    }
+                                    .padding()
+                                }
+                                .overlay(alignment: .bottom) {
+                                    Text("\(self.messageIndex + 1) / \(self.messages.count)")
+                                        .padding()
+                                }
+                                .overlay(alignment: .bottomLeading) { // Previous button
+                                    if messageIndex > 0 {
+                                        Button {
+                                            if self.messageIndex > 0 {
+                                                self.messageIndex -= 1
+                                            }
+                                        } label: {
+                                            Text("◀ Previous")
+                                        }
+                                        .padding()
+                                    }
+                                }
+                        }
+                    
+                }
+                
+            }
     }
 }
 
 
 struct ModalTestView: View {
+    @State private var isShowingModal: Bool = false
+    @State private var trigger: Bool = false
+    @State private var modalColor: Color = .orange
+    
     var body: some View {
-        Group {
-            Color.yellow
-                .overlay {
-                    ModalView(modalText: [])
+        VStack {
+            Color.blue
+                .onTapGesture {
+                    withAnimation {
+                        isShowingModal = true
+                    }
+                }
+                .onChange(of: trigger) { _ in
+                    print("triggered")
                 }
         }
-        .compositingGroup()
+        .modalView(
+            isShowingModal: $isShowingModal,
+            trigger: $trigger,
+            modalColor: $modalColor,
+            messages: ["First", "Second", "third", "Fourth", "Fifth"],
+            tapBackgroundToDismiss: true
+        )
     }
 }
 
-#Preview {
-    ModalTestView()
+struct ModalTestview_Preview: PreviewProvider {
+    static var previews: some View {
+        ModalTestView()
+    }
 }

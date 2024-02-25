@@ -104,11 +104,8 @@ class ARViewController: UIViewController {
                     if let index = targetNodes.firstIndex(of: targetNode) {
                         targetNodes.remove(at: index)
                         targetNode.removeFromParentNode()
-//                        HapticManager.shared.createHaptic(.medium)
                         
-                        //MARK: Fix haptic manager
-                        
-                        HapticManager.shared?.createHaptic(.success, true)
+                        HapticManager.shared?.createHaptic(.success, false)
                         AudioManager.shared.playSound(.samplesound)
                     }
                 }
@@ -187,7 +184,7 @@ class ARViewController: UIViewController {
         
         self.view.addSubview(scoreLabel)
         
-        scoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 20).isActive = true
+        scoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 50).isActive = true
         scoreLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
     }
     
@@ -244,12 +241,13 @@ class ARViewController: UIViewController {
         
         fingerHeartSilhouetteView = UIImageView(image: fingerHeartSilhouetteImage)
         
+        
         fingerHeartSilhouetteView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(fingerHeartSilhouetteView)
         
         fingerHeartSilhouetteView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        fingerHeartSilhouetteView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 20).isActive = true
+        fingerHeartSilhouetteView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -100).isActive = true
         
     }
     
@@ -442,7 +440,10 @@ class ARViewController: UIViewController {
     }
     
     func prepareEffects() {
-        guard let scene = SCNScene(named: heartModelPath) else { return }
+        guard let scene = SCNScene(named: heartModelPath) else {
+            print("Cannot make heartEffect")
+            return
+        }
         
         // add Effect.heart to arSceneView
         guard let heart = scene.rootNode.childNode(
