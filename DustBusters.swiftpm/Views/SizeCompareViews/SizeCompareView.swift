@@ -69,8 +69,7 @@ struct SizeCompareView: View {
                 self.offset = value
             }
             .onChange(of: scaleAmount) { _ in
-//                HapticManager.shared?.createHaptic(.swipe, false)
-                // sound
+
             }
         }
         .scrollDisabled(isShowingFirstModal)
@@ -79,19 +78,19 @@ struct SizeCompareView: View {
             trigger: $firstTrigger,
             modalColor: .constant(Color.appColor()),
             messages: ["Micro dusts are dusts that is smaller than 10µm", "It is ultra small that it can only be seen using special micro scopes", "To see how small micro dust is, scroll on this screen and find micro dusts.", "And once you find it, tap on it!"],
-            tapBackgroundToDismiss: false
+            tapBackgroundToDismiss: true
         )
         .modalView(
             isShowingModal: $isShowingSecondModal,
             trigger: $secondTrigger,
             modalColor: .constant(Color.appColor()),
-            messages: ["You found micro dusts!","Micro dusts are only 1/400000 radius of world's smallest apple and smaller!", "This small size is the reason micro dusts causes problems.", "We can't let them just float on air and cause problems, can we?","Let's bust some dust starting from the one's near you!"],
-            tapBackgroundToDismiss: true
+            messages: ["You found micro dusts!","Micro dusts are only 1/400000 or smaller then radius of world's smallest apple!", "This small size is the reason micro dusts cause problems.", "We can't let them just float on air and cause problems, can we?","Let's bust some dust starting from the one's near you!"],
+            tapBackgroundToDismiss: false
         )
         .coordinateSpace(name: "ScrollView")
         .background{
             LinearGradient(
-                colors: [.brown, .white],
+                colors: [.white, Color.appColor()],
                 startPoint: .top,
                 endPoint: .bottom
             )

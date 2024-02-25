@@ -29,8 +29,7 @@ let package = Package(
             supportedInterfaceOrientations: [
                 .portrait,
                 .landscapeRight,
-                .landscapeLeft,
-//                .portraitUpsideDown(.when(deviceFamilies: [.pad]))
+                .landscapeLeft
             ],
             capabilities: [
                 .camera(purposeString: "Need to use camera for DustBusters!")

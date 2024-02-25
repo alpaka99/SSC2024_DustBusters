@@ -29,12 +29,12 @@ struct ARView: View {
         switch viewToShow {
         case .beforeGame:
             CityLineView(
-                color: .constant(.orange)
+                color: .constant(Color.appColor())
             )
                 .modalView(
                     isShowingModal: $isShowingFirstModal,
                     trigger: $firstTrigger,
-                    modalColor: .constant(.orange),
+                    modalColor: .constant(Color.appColor()),
                     messages: ["Using your device's camera,", "and your love for community,", "We are going to catch micro dust...", "With finger heart! 🫰"],
                     tapBackgroundToDismiss: false
                 )
@@ -67,10 +67,8 @@ struct ARView: View {
                 .navigationBarBackButtonHidden(true)
                 .toolbar {
                     ToolbarItem {
-                        Button {
-                            self.viewToShow = .gameEnded
-                        } label: {
-                            Text("Next")
+                        Button("Next") {
+                            path.append(Constants.NavigationValue.endingView)
                         }
                     }
                 }

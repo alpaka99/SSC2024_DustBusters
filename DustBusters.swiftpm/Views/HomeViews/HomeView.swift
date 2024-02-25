@@ -16,7 +16,7 @@ struct HomeView: View {
             
                 .padding(20)
                 .mask {
-                    Text("DustBusters!")
+                    Text("Dust Busters!")
                         .font(.system(size: 100))
                 }
             
@@ -39,19 +39,24 @@ struct HomeView: View {
         }
         .background {
             CityLineView(color: $appColor)
+                .overlay {
+                    StrokeCityLineView(color: $appColor)
+                        .opacity(0.3)
+                }
         }
         .modalView(
             isShowingModal: $isShowingModal,
             trigger: $trigger,
-            modalColor: .constant(.orange),
+            modalColor: .constant(Color.appColor()),
             messages: ["Welcome to Dust Busters!", "In this app we are going to get rid of Micro dusts by following steps.", "Let's Play!"],
             tapBackgroundToDismiss: true
         )
-        
-//        .padding(100)
         .onChange(of: trigger) { _ in
             // trigger action
             isShowingModal = false
+        }
+        .onAppear {
+            appColor = Color.appColor()
         }
     }
 }

@@ -14,8 +14,9 @@ struct CityLineView: View {
     @Binding var color: Color
     
     @State var neighborhoodViewOpacity: Double = 1
-    @State var middlelineOpacity: Double = 0.5
-    @State var skylineOpacity: Double = 0.2
+    @State var middlelineOpacity: Double = 0.6
+    @State var skylineOpacity: Double = 0.3
+    @State var backgroundOpacity: Double = 0.1
     
     
     var body: some View {
@@ -31,7 +32,7 @@ struct CityLineView: View {
             }
             .background {
                 color
-                    .opacity(0.1)
+                    .opacity(backgroundOpacity)
             }
     }
 }

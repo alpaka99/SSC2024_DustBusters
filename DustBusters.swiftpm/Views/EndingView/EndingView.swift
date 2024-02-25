@@ -24,21 +24,26 @@ struct EndingView: View {
     
     @State private var color: Color = Color.appColor()
     
-    let checkbox1: CheckBoxView = CheckBoxView(boxMessage: "message1")
-    let checkbox2: CheckBoxView = CheckBoxView(boxMessage: "message2")
-    let checkbox3: CheckBoxView = CheckBoxView(boxMessage: "message3")
-    
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
+            Text("By...")
+                .font(.system(size: 50))
+                .fontWeight(.bold)
+                .padding(50)
+            
             Spacer()
             
-            checkbox1
+            CheckBoxView(
+                isChecked: $isFirstBoxTouched,
+                solution: "Hi-level emission controls and strict management,  which can significantly reduce dusts and hazardous gases.",
+                reason: "While CO2 makes up the most of coal-fired power plant emissions, they also contain nitrogen oxides (NOx) and sulfur oxides (SOx) which turns into micro dusts in the atmosphere."
+            )
                 .simultaneousGesture(
                     TapGesture()
                         .onEnded {
                             withAnimation(.easeInOut) {
-                                isFirstBoxTouched = true
+//                                isFirstBoxTouched.toggle()
                                 isShowingSecondBox = true
                                 Constants.appState = .halfway
                                 color = Color.appColor()
@@ -47,16 +52,19 @@ struct EndingView: View {
                 )
                 .padding()
                 .opacity(isShowingFirstBox ? 1 : 0)
-                .allowsHitTesting(!isFirstBoxTouched)
             
             Spacer()
             
-            checkbox2
+            CheckBoxView(
+                isChecked: $isSecondBoxTouched,
+                solution: "Driving natural gas or electric vehicle and attaching dust filter to vehicle's gas outlet.",
+                reason: "One of the reason old diesel vehicles. Diesel cars emit up to 20 times more ultrafine micro dusts (PM2.5) than gasoline cars. Lots of harmful gases are transforms into micro dusts in the air."
+            )
                 .simultaneousGesture(
                     TapGesture()
                         .onEnded {
                             withAnimation(.easeInOut) {
-                                isSecondBoxTouched = true
+//                                isSecondBoxTouched.toggle()
                                 isShowingThirdBox = true
                                 Constants.appState = .clear
                                 color = Color.appColor()
@@ -65,23 +73,25 @@ struct EndingView: View {
                 )
                 .padding()
                 .opacity(isShowingSecondBox ? 1 : 0)
-                .allowsHitTesting(!isSecondBoxTouched)
             
             Spacer()
             
-            checkbox3
+            CheckBoxView(
+                isChecked: $isThirdBoxTouched,
+                solution: "Plant lots of trees that effectively reduce micro dusts.",
+                reason: "Trees adsorb and absorb micro dust that is already in the air. A single tree can absorb 2.5T of carbon dioxide and 35.7g of micro dusts per year, while releasing 1.8T of oxygen. "
+            )
                 .padding()
                 .opacity(isShowingThirdBox ? 1 : 0)
                 .simultaneousGesture(
                     TapGesture()
                         .onEnded {
                             withAnimation {
-                                isThirdBoxTouched = true
+//                                isThirdBoxTouched.toggle()
                                 isShowingModal = true
                             }
                         }
                 )
-                .allowsHitTesting(!isThirdBoxTouched)
             
             Spacer()
         }
@@ -89,7 +99,7 @@ struct EndingView: View {
             isShowingModal: $isShowingModal,
             trigger: $trigger,
             modalColor: .constant(.blue),
-            messages: [""],
+            messages: ["Great job on completing all steps of this app!", "By\n• Knowing what micro dusts are\n• Realizing micro dusts around us\n• Understanding effects of micro dusts\n• And acknoledging how to prevent and reduce micro dusts", "You are now an official Dust Buster!", "Thank you for clearing sky in this app. Please continue in reality too.", "For earth, for us."],
             tapBackgroundToDismiss: true
         )
         .onChange(of: trigger) { _ in
@@ -122,18 +132,19 @@ struct EndingView: View {
 }
 
 struct CheckBoxView : View {
-    @State private(set) var isChecked: Bool = false
-    let boxMessage: String
+    @Binding var isChecked: Bool
+    let solution: String
+    let reason: String
     
     var body: some View {
         HStack {
-            Text(boxMessage)
+            Text(isChecked ? reason : solution)
                 .font(.largeTitle)
                 .padding()
             
             Spacer()
             
-            Image(systemName: isChecked ? "checkmark.square":"square")
+            Image(systemName: isChecked ? "checkmark.square" : "square")
                 .font(.system(size: 100))
                 .padding()
         }
@@ -141,6 +152,7 @@ struct CheckBoxView : View {
         .background {
             RoundedRectangle(cornerRadius: 20)
                 .fill(.white)
+                .shadow(radius: 5, x: 5, y: 5)
         }
         .background {
             RoundedRectangle(cornerRadius: 20)
@@ -148,7 +160,7 @@ struct CheckBoxView : View {
                 .fill(.blue)
         }
         .onTapGesture {
-            isChecked = true
+            isChecked.toggle()
         }
     }
 }

@@ -53,7 +53,8 @@ struct ModalViewModifier: ViewModifier {
             .overlay(alignment: .center) {
                 if isShowingModal {
                     Text(messages[messageIndex])
-                        .font(.largeTitle)
+                        .font(.title)
+                        .fontWeight(.bold)
                         .padding()
                         .frame(maxWidth: 500)
                         .background {
