@@ -107,19 +107,27 @@ struct MicroDustEffectView: View {
                                                , startPoint: .bottom, endPoint: .top)
 //                                Color.red
                             case 1:
-                                Color.brown
+//                                Color.brown
+                                LinearGradient(colors: [.red, .pink]
+                                               , startPoint: .bottom, endPoint: .top)
                             case 2:
-                                Color.orange
+                                LinearGradient(colors: [.pink, .orange]
+                                               , startPoint: .bottom, endPoint: .top)
                             case 3:
-                                Color.yellow
+                                LinearGradient(colors: [.orange, .yellow]
+                                               , startPoint: .bottom, endPoint: .top)
                             case 4:
-                                Color.green
+                                LinearGradient(colors: [.yellow, .green]
+                                               , startPoint: .bottom, endPoint: .top)
                             case 5:
-                                Color.blue
+                                LinearGradient(colors: [.green, .cyan]
+                                               , startPoint: .bottom, endPoint: .top)
                             case 6:
-                                Color.purple
+                                LinearGradient(colors: [.cyan, .blue]
+                                               , startPoint: .bottom, endPoint: .top)
                             default:
-                                Color.blue
+                                LinearGradient(colors: [.white, .blue]
+                                               , startPoint: .bottom, endPoint: .top)
                             }
                         }
                         .overlay { // tappable images
@@ -251,18 +259,21 @@ struct MicroDustEffectView: View {
             isShowingModal: $isShowingFirstModal,
             trigger: $firstTrigger,
             modalColor: .constant(Color.appColor()),
-            messages: ["Micro dust floats on air.", "And while they are floating, they can enter our body and make us sick", "Because they are so small and light, they get into deepest part of our body", "Examine each part of our body with magnifying glass", "When magnified, tap on the symptoms to cure this person!"],
+            messages: ["Micro dust floats on air and travels everywhere.", "And while they are floating, they can enter our body by inhaling and make us sick", "Because they are so small and light, they get into deepest part of our body", "Examine each part of our body with magnifying glass", "When magnified, tap on the symptoms to cure this person!"],
             tapBackgroundToDismiss: true
         )
         .modalView(
             isShowingModal: $isShowingSecondModal,
             trigger: $secondTrigger,
             modalColor: .constant(Color.appColor()),
-            messages: ["Great job on healing this person!", "Like you saw, all this and more sickness can be caused by micro dusts.", "It is important to reduce micro dusts in air we breath!", "But how?"],
+            messages: ["Great job on healing this person!", "Like you saw, all this and more sickness can be caused by breathing in micro dusts.", "So ironically, the air we breath in is making us sick at same time.","Therefore, it is important to reduce micro dusts in air we breath!", "But how?"],
             tapBackgroundToDismiss: true
         )
         .onChange(of: firstTrigger) { _ in
             isShowingFirstModal = false
+        }
+        .onChange(of: secondTrigger) { _ in
+            path.append(Constants.NavigationValue.swipeView)
         }
         .onChange(of: tappedCounter) { _ in
             if tappedCounter >= 6 {

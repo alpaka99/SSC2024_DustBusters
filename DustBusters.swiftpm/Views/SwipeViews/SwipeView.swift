@@ -5,15 +5,23 @@
 //  Created by user on 2/22/24.
 //
 
+import Combine
 import SwiftUI
 
 struct SwipeView: View {
     @Binding var path: NavigationPath
     
     @State var isFinished: Bool = false
-    @State private var isShowingBottomMessage: Bool = false
+//    @State private var isShowingBottomMessage: Bool = false
+    @State private var topMessageIndex: Int = 0
+    @State private var nextViewCounter: Int = 0
+    @State private var isShowingFirstModal: Bool = true
+    @State private var firstTrigger: Bool = true
+    @State private var isShowingToolbarItem: Bool = true
     
-    let dustParticle: Circle = Circle()
+    let topMessages: [String] = ["What was under dusty screen? Nothing?", "Look carefully", "There is...", "You!"]
+    @State private var timer = Timer.publish(every: 3, on: .main, in: .default).autoconnect()
+    
     
     var body: some View {
         VStack {
@@ -36,62 +44,94 @@ struct SwipeView: View {
                             .scaledToFill()
                     }
             }
+            .modalView(
+                isShowingModal: $isShowingFirstModal,
+                trigger: $firstTrigger,
+                modalColor: .constant(Color.appColor()),
+                messages: ["Key to reduce micro dusts is under this layer of micro dusts.", "Swipe off micro dusts to discover the key!"],
+                tapBackgroundToDismiss: true
+            )
+            .onChange(of: firstTrigger) { _ in
+                withAnimation {
+                    isShowingFirstModal = false
+                }
+            }
         }
         .ignoresSafeArea()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay {
-            if isFinished {
-                VStack {
-                    Text("What do you see? Nothing?")
-                        .font(.system(size: 100))
-                        .foregroundStyle(Color.white)
-                        .padding()
-                        .onAppear {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                                withAnimation(.easeInOut(duration: 2)) {
-                                    isShowingBottomMessage = true
-                                }
-                            }
-                        }
-                    
-                    Spacer()
-                    
-                    if isShowingBottomMessage {
-                        Text("There is you!\nYou are the Key to reduce microdust from air")
-                            .font(.system(size: 100))
+            if isShowingFirstModal == false {
+                if isFinished {
+                    VStack {
+                        Text(topMessages[topMessageIndex])
+                            .font(.system(size: 50))
+                            .fontWeight(.bold)
                             .foregroundStyle(Color.white)
                             .padding()
-                    }
-                }
-            } else {
-                HStack(spacing: 20) {
-                    Text("Swipe of dust!")
-                        .font(.system(size: 100))
-                        .fontWeight(.semibold)
-                        .foregroundStyle(Color.white)
-                    
-                    Button {
+                            .onAppear {
+                                withAnimation {
+                                    self.isShowingToolbarItem = false
+                                }
+                                self.timer = timer.upstream.autoconnect()
+                            }
                         
-                    } label: {
+                        Spacer()
+                        
+                        if topMessageIndex >= topMessages.count - 1 {
+                            Text("You are the Key to reduce micro dusts from air!")
+                                .font(.system(size: 50))
+                                .fontWeight(.bold)
+                                .foregroundStyle(Color.white)
+                                .padding()
+                        }
+                    }
+                } else {
+                    HStack(spacing: 20) {
+                        Text("Swipe micro dusts off!")
+                            .font(.system(size: 50))
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.white)
+                        
+                        
                         Image(systemName: "scribble.variable")
                             .font(.system(size: 100))
                             .foregroundColor(Color.white)
                     }
-                    
+                    .padding()
+                    .onAppear {
+                        timer.upstream.connect().cancel()
+                    }
                 }
-                .padding()
+            }
+        }
+        .onReceive(timer) { _ in
+            if topMessageIndex < topMessages.count - 1 {
+                withAnimation(.easeOut) {
+                    topMessageIndex += 1
+                }
+            } else {
+                nextViewCounter += 1
+            }
+        }
+        .onChange(of: nextViewCounter) { _ in
+            if nextViewCounter >= 2 {
+                path.append(Constants.NavigationValue.endingView)
             }
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    path.append(Constants.NavigationValue.endingView)
-                } label: {
-                    Text("Next")
+            if isShowingToolbarItem {
+                ToolbarItem {
+                    Button {
+                        isShowingFirstModal = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.largeTitle)
+                    }
                 }
             }
         }
     }
+    
 }
 
 

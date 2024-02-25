@@ -51,7 +51,8 @@ struct MyApp: App {
 //            }
             NavigationStack {
 //                ARView(path: $path)
-                MicroDustEffectView(path: $path)
+//                MicroDustEffectView(path: $path)
+                SwipeView(path: $path)
             }
         }
     }
