@@ -99,7 +99,7 @@ struct EndingView: View {
             isShowingModal: $isShowingModal,
             trigger: $trigger,
             modalColor: .constant(.blue),
-            messages: ["Great job on completing all steps of this app!", "By\n• Knowing what micro dusts are\n• Realizing micro dusts around us\n• Understanding effects of micro dusts\n• And acknoledging how to prevent and reduce micro dusts", "You are now an official Dust Buster!", "Thank you for clearing sky in this app. Please continue in reality too.", "For earth, for us."],
+            messages: ["Great job on completing all steps of this app!", "By\n• Knowing what micro dusts are\n• Realizing micro dusts around us\n• Understanding effects of micro dusts\n• And acknoledging how to prevent and reduce micro dusts", "You are now officially a Dust Buster!", "Thank you for returning blue sky in this app. Please continue in reality too.", "For earth, for us."],
             tapBackgroundToDismiss: true
         )
         .onChange(of: trigger) { _ in

@@ -24,6 +24,7 @@ struct MicroDustEffectView: View {
     @State private var isEverythingTapped: Bool = false
     @State private var tappedCounter: Int = 0
     @State private var isPopdownAlertPresent: Bool = false
+    @State private var title: String = ""
     @State private var message: String = ""
     @State private var isImageTouchEnabled: Bool = true
     
@@ -216,13 +217,14 @@ struct MicroDustEffectView: View {
         .ignoresSafeArea()
         .popdownAlert(
             isPresented: $isPopdownAlertPresent,
+            title: $title,
             message: $message
         )
         .modalView(
             isShowingModal: $isShowingFirstModal,
             trigger: $firstTrigger,
             modalColor: .constant(Color.appColor()),
-            messages: ["Micro dust floats on air and travels everywhere.", "And while they are floating, they can enter our body by inhaling and make us sick", "Because they are so small and light, they get into deepest part of our body", "Examine each part of our body with magnifying glass", "When magnified, tap on the symptoms to cure this person!"],
+            messages: ["Micro dust floats on air and travels everywhere.", "And while they are floating, they can enter our body through inhaling and make us sick", "Because they are so small and light, micro dusts can get into the deepest part of our body.", "Examine each part of our body with magnifying glass.", "When magnified, tap on the symptoms to cure this person!"],
             tapBackgroundToDismiss: true
         )
         .modalView(
@@ -318,16 +320,22 @@ struct MicroDustEffectView: View {
         withAnimation {
             switch bodyPart {
             case .eyes:
+                self.title = "Eyes"
                 self.message = "Micro dusts can get into your eyes and cause diseases such as apollo eye disease. Dry, stinging and itchines can also happen."
             case .nose:
+                self.title = "Nose"
                 self.message = "Ultra fine micro dust can get into your nose. Than it can trigger illness like colds, rhinitis, asthma, sinusitis, bronchitis, and pneumonia."
             case .lung:
+                self.title = "Lung"
                 self.message = "Micro dusts are breathed in when we breathe and are trapped in our lungs via the bronchi. This triggers inflammation and leads to respiratory illnesses."
             case .skinRash:
+                self.title = "Skin"
                 self.message = "Acne, rashes, and dust allergies of all kinds can happen when micro dusts sticks to your skin."
             case .intestine:
+                self.title = "Cancer"
                 self.message = "The WHO has named particulate matter as a probable cause of lung and bladder cancer, making it a Group 1 carcinogen. "
             case .vein:
+                self.title = "Bloodstream"
                 self.message = "Ultrafine micro dusts can pass through organ wall and is absorbed into the bloodstream. The concept of dusts mixed with heavy metals and chemicals blocking blood vessels."
             }
         }

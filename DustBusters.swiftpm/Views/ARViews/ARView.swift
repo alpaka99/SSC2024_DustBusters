@@ -64,7 +64,6 @@ struct ARView: View {
                     }
                     viewToShow = .gameEnded
                 }
-                .navigationBarBackButtonHidden(true)
         case .gameEnded:
             CityLineView(color: .constant(.orange))
             .modalView(
