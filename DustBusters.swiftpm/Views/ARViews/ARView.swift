@@ -65,20 +65,13 @@ struct ARView: View {
                     viewToShow = .gameEnded
                 }
                 .navigationBarBackButtonHidden(true)
-                .toolbar {
-                    ToolbarItem {
-                        Button("Next") {
-                            path.append(Constants.NavigationValue.endingView)
-                        }
-                    }
-                }
         case .gameEnded:
             CityLineView(color: .constant(.orange))
             .modalView(
                 isShowingModal: $isShowingSecondModal,
                 trigger: $secondTrigger,
                 modalColor: .constant(Color.appColor()),
-                messages: ["Great job on catching micro dusts!", "Like you saw, there are many micro dusts around us.", "And over the last 20 years, micro dusts have increased more than 30%.","So what happens to the rest of micro dusts?"],
+                messages: ["Great job on catching micro dusts!", "Like you saw, there are many micro dusts around us.", "And over the last 20 years, micro dusts have increased more than 30%.","So what happens to the micro dust we didn't catch?"],
                 tapBackgroundToDismiss: true
             )
             .onChange(of: secondTrigger) { _ in

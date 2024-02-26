@@ -57,6 +57,7 @@ struct HomeView: View {
         }
         .onAppear {
             appColor = Color.appColor()
+            AudioManager.shared.playSound(.openingSound)
         }
     }
 }

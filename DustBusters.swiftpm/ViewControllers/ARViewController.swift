@@ -105,8 +105,12 @@ class ARViewController: UIViewController {
                         targetNodes.remove(at: index)
                         targetNode.removeFromParentNode()
                         
-                        HapticManager.shared?.createHaptic(.success, false)
-                        AudioManager.shared.playSound(.samplesound)
+                        let choosePopSound = Int.random(in: 1...2)
+                        if choosePopSound  == 1 {
+                            AudioManager.shared.playSound(.pop1)
+                        } else {
+                            AudioManager.shared.playSound(.pop2)
+                        }
                     }
                 }
             }
@@ -120,6 +124,7 @@ class ARViewController: UIViewController {
     }
     
     func showResult() {
+        AudioManager.shared.playSound(.bell)
         DispatchQueue.main.async { [ weak self ] in
             let alertController = UIAlertController(
                 title: "Time's UP!",
@@ -313,7 +318,6 @@ class ARViewController: UIViewController {
             let label = prediction.label
             
             guard let confidence = prediction.labelProbabilities[label] else { return }
-//            print("label:\(prediction.label)\nconfidence:\(confidence)")
             
             // do this if prediction > 70%
             if confidence > 0.7 {
@@ -378,7 +382,8 @@ class ARViewController: UIViewController {
                 self.isEffectAppearing = false
             }
             let fadeOut = SCNAction.fadeOut(duration: 0.5)
-//            print("trying to shoot heartnode")
+            
+            AudioManager.shared.playSound(.heartShoot)
             heartNode.runAction(.sequence(
                 [
                     fadeIn,

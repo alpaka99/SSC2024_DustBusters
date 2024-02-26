@@ -36,7 +36,6 @@ struct MicroDustEffectView: View {
     var isPortrait: Bool = UIDevice.current.orientation.isPortrait
     
     private var eyesOffset: CGPoint {
-
             return CGPoint(x: 0, y: -360)
     }
     
@@ -119,7 +118,6 @@ struct MicroDustEffectView: View {
                                     .opacity(isEyeTapped ? 0 : 1)
                                     .onTapGesture {
                                         // when tapped eye
-                                        //                                    print("eye tapped")
                                         self.showPopdownAlert(.eyes)
                                     }
                                     .allowsHitTesting(isImageTouchEnabled)
@@ -220,7 +218,6 @@ struct MicroDustEffectView: View {
             isPresented: $isPopdownAlertPresent,
             message: $message
         )
-
         .modalView(
             isShowingModal: $isShowingFirstModal,
             trigger: $firstTrigger,
@@ -275,6 +272,7 @@ struct MicroDustEffectView: View {
     }
     
     private func showPopdownAlert(_ bodyPart: BodyPart) {
+        AudioManager.shared.playSound(.metalToolDrop)
         self.setPopdownAlertMessage(bodyPart)
         self.bodyImageTapped(bodyPart)
         

@@ -105,6 +105,21 @@ struct EndingView: View {
         .onChange(of: trigger) { _ in
             path = NavigationPath()
         }
+        .onChange(of: isShowingFirstBox) { _ in
+            if isShowingFirstBox {
+                AudioManager.shared.playSound(.solutionBell)
+            }
+        }
+        .onChange(of: isShowingSecondBox) { _ in
+            if isShowingSecondBox {
+                AudioManager.shared.playSound(.solutionBell)
+            }
+        }
+        .onChange(of: isShowingThirdBox) { _ in
+            if isShowingThirdBox {
+                AudioManager.shared.playSound(.solutionBell)
+            }
+        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation(.easeInOut) {

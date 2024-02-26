@@ -38,7 +38,6 @@ struct MyApp: App {
                     }
                     .onAppear {
                         color = Color.appColor()
-                        print(color)
                     }
             }
         }

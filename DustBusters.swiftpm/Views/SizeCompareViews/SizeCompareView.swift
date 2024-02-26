@@ -69,9 +69,13 @@ struct SizeCompareView: View {
                 self.offset = value
             }
             .onChange(of: scaleAmount) { _ in
-
+                let soundTrigger = scaleAmount.truncatingRemainder(dividingBy: 10)
+                if soundTrigger > 9 {
+                    AudioManager.shared.playSound(.dragSound)
+                }
             }
         }
+        
         .scrollDisabled(isShowingFirstModal)
         .modalView(
             isShowingModal: $isShowingFirstModal,

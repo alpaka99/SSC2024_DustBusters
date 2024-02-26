@@ -20,7 +20,6 @@ final class AudioManager: EffectHelper {
     }
     
     func configAVAudioSession() {
-        print(#function)
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback)
             try AVAudioSession.sharedInstance().setActive(true)
@@ -45,7 +44,7 @@ final class AudioManager: EffectHelper {
     }
     
     private func fetchSoundURL(_ soundName: SoundName) -> URL? {
-        guard let url = Bundle.main.url(forResource: "Resource/Sounds/\(soundName.rawValue)", withExtension: "mp3") else {
+        guard let url = Bundle.main.url(forResource: "Resource/Sounds/\(soundName.rawValue)", withExtension: "wav") else {
             print("Cannot find url")
             return nil
         }
@@ -54,6 +53,17 @@ final class AudioManager: EffectHelper {
     }
     
     enum SoundName: String {
-        case samplesound
+        case pop1
+        case pop2
+        case heartShoot
+        case dragSound
+        case paperSlide
+        case magicSound
+        case openingSound
+        case bell
+        case swipeSound
+        case solutionBell
+        case metalToolDrop
+        case toyDrop
     }
 }

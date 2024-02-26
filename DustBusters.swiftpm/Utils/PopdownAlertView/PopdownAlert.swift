@@ -34,6 +34,7 @@ struct PopdownAlert: ViewModifier {
             .overlay(alignment: .top) {
                 if isPresented {
                     Text(message)
+                        .fontWeight(.semibold)
                         .padding()
                         .frame(
                             width: 600,

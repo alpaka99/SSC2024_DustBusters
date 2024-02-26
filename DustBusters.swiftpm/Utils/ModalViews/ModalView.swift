@@ -112,9 +112,6 @@ struct ModalTestView: View {
                         isShowingModal = true
                     }
                 }
-                .onChange(of: trigger) { _ in
-                    print("triggered")
-                }
         }
         .modalView(
             isShowingModal: $isShowingModal,

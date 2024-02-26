@@ -194,6 +194,10 @@ struct ScratchView<Content: View, OverlayView: View>: View {
                                     startingPoint = value.location
                                 }
                                 points.append(value.location)
+                                
+                                if points.count % 40 == 0 {
+                                    AudioManager.shared.playSound(.swipeSound)
+                                }
                             }
                         }
                         .onEnded { value in
