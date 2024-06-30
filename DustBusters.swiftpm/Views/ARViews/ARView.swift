@@ -64,6 +64,19 @@ struct ARView: View {
                     }
                     viewToShow = .gameEnded
                 }
+                .toolbar {
+                    ToolbarItem {
+                        Button {
+                            self.arViewControllerContainer = nil
+                            withAnimation {
+                                isShowingSecondModal = true
+                            }
+                            self.viewToShow = .gameEnded
+                        } label: {
+                            Text("Next")
+                        }
+                    }
+                }
         case .gameEnded:
             CityLineView(color: .constant(.orange))
             .modalView(
