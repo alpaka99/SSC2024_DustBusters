@@ -104,7 +104,7 @@ struct SizeCompareView: View {
             isShowingFirstModal = false
         }
         .onChange(of: secondTrigger) { _ in
-            path.append(Constants.NavigationValue.arView)
+            path.append(Constants.NavigationValue.microDustEffectView)
         }
         .toolbar {
             ToolbarItem {
