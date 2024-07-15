@@ -5,72 +5,133 @@
 //  Created by user on 2/22/24.
 //
 
+import Combine
 import SwiftUI
 
 struct SwipeView: View {
+    @Binding var path: NavigationPath
+    
     @State var isFinished: Bool = false
+//    @State private var isShowingBottomMessage: Bool = false
+    @State private var topMessageIndex: Int = 0
+    @State private var nextViewCounter: Int = 0
+    @State private var isShowingFirstModal: Bool = true
+    @State private var firstTrigger: Bool = true
+    @State private var isShowingToolbarItem: Bool = true
+    
+    let topMessages: [String] = ["What was under dusty screen? Nothing?", "Look carefully", "There is...", "You!"]
+    @State private var timer = Timer.publish(every: 3, on: .main, in: .default).autoconnect()
+    
     
     var body: some View {
         VStack {
             ScratchView(
-                cursorSize: 50,
+                cursorSize: 75,
                 isFinished: $isFinished
             ) {
                 // body content
-                VStack {
-                    Image("coffeebean")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding()
-                    
-                    Text("You've won")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.gray)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Color.black
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity
+                    )
             } overlayView: {
-                // overlay content
-                Image("water")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+                Color.brown
+                    .overlay {
+                        Image("dustOverlay")
+                            .resizable()
+                            .opacity(0.5)
+                            .scaledToFill()
+                    }
             }
-            
+            .modalView(
+                isShowingModal: $isShowingFirstModal,
+                trigger: $firstTrigger,
+                modalColor: .constant(Color.appColor()),
+                messages: ["Key to reduce micro dusts is here.", "Under this layer of micro dusts.", "Swipe off micro dusts to discover the key!"],
+                tapBackgroundToDismiss: true
+            )
+            .onChange(of: firstTrigger) { _ in
+                withAnimation {
+                    isShowingFirstModal = false
+                }
+            }
         }
+        .ignoresSafeArea()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            Color.black.ignoresSafeArea()
-        }
-        .overlay(alignment: .top) {
-            HStack(spacing: 15) {
-                Button {
-                    
-                } label: {
-                    Image(systemName: "scribble.variable")
-                        .font(.title2)
-                        .foregroundColor(Color.white)
-                }
-                Text("Scratch Card")
-                    .font(.title)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color.white)
-                
-                Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
-                
-                Button {
-                    isFinished = false
-                } label: {
-                    Image("twodusts")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 55, height: 55)
-                        .clipShape(Circle())
+        .overlay {
+            if isShowingFirstModal == false {
+                if isFinished {
+                    VStack {
+                        Text(topMessages[topMessageIndex])
+                            .font(.system(size: 50))
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.white)
+                            .padding()
+                            .onAppear {
+                                withAnimation {
+                                    self.isShowingToolbarItem = false
+                                }
+                                self.timer = timer.upstream.autoconnect()
+                            }
+                        
+                        Spacer()
+                        
+                        if topMessageIndex >= topMessages.count - 1 {
+                            Text("You are the Key to reduce micro dusts from air!")
+                                .font(.system(size: 50))
+                                .fontWeight(.bold)
+                                .foregroundStyle(Color.white)
+                                .padding()
+                        }
+                    }
+                } else {
+                    HStack(spacing: 20) {
+                        Text("Swipe micro dusts off!")
+                            .font(.system(size: 50))
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.white)
+                        
+                        
+                        Image(systemName: "scribble.variable")
+                            .font(.system(size: 100))
+                            .foregroundColor(Color.white)
+                    }
+                    .padding()
+                    .onAppear {
+                        timer.upstream.connect().cancel()
+                    }
                 }
             }
-            .padding()
+        }
+        .onReceive(timer) { _ in
+            if topMessageIndex < topMessages.count - 1 {
+                withAnimation(.easeOut) {
+                    topMessageIndex += 1
+                }
+            } else {
+                nextViewCounter += 1
+            }
+        }
+        .onChange(of: nextViewCounter) { _ in
+            if nextViewCounter >= 2 {
+                path.append(Constants.NavigationValue.endingView)
+            }
+        }
+        .toolbar {
+            if isShowingToolbarItem {
+                ToolbarItem {
+                    Button {
+                        isShowingFirstModal = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.largeTitle)
+                    }
+                }
+            }
         }
     }
+    
 }
 
 
@@ -81,12 +142,9 @@ struct ScratchView<Content: View, OverlayView: View>: View {
     // for gesture update
     @GestureState private var gestureLocation: CGPoint = .zero
     
-    
-    
     var content: Content
     var overlayView: OverlayView
     var cursorSize: CGFloat
-    
     
     init(
         cursorSize: CGFloat,
@@ -136,22 +194,24 @@ struct ScratchView<Content: View, OverlayView: View>: View {
                                     startingPoint = value.location
                                 }
                                 points.append(value.location)
+                                
+                                if points.count % 40 == 0 {
+                                    AudioManager.shared.playSound(.swipeSound)
+                                }
                             }
                         }
                         .onEnded { value in
-                            if points.count > 200 {
-                                withAnimation {
+                            if points.count > 400 {
+                                withAnimation(.easeInOut(duration: 2)) {
                                     isFinished = true
                                 }
                             }
                         }
                 )
         }
-        .frame(width: 300, height: 300)
-        .cornerRadius(20)
         .onChange(of: isFinished) { _ in
             if isFinished == false && points.isEmpty == false {
-                withAnimation(.easeInOut) {
+                withAnimation(.easeInOut(duration: 2)) {
                     resetView()
                 }
             }
@@ -178,8 +238,9 @@ struct ScratchMask: Shape {
 
 
 struct SwipeView_Preview: PreviewProvider {
+    @State static var path: NavigationPath = .init()
     static var previews: some View {
-        SwipeView()
+        SwipeView(path: $path)
     }
 }
 

@@ -11,12 +11,14 @@ import SwiftUI
 extension View {
     @ViewBuilder
     func magnificationEffect(
+        _ offset: Binding<CGSize>,
         _ scale: CGFloat,
         _ rotation: CGFloat,
         _ size: CGFloat = 0,
         _ tint: Color = .black
     ) -> some View {
         MagnificationEffectHelper(
+            offset: offset,
             scale: scale,
             rotation: rotation,
             size: size,
@@ -33,7 +35,8 @@ extension View {
             .mask {
                 Rectangle()
                     .overlay {
-                        content()    .blendMode(.destinationOut)
+                        content()
+                            .blendMode(.destinationOut)
                     }
             }
     }

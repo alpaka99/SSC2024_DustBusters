@@ -104,6 +104,13 @@ class ARViewController: UIViewController {
                     if let index = targetNodes.firstIndex(of: targetNode) {
                         targetNodes.remove(at: index)
                         targetNode.removeFromParentNode()
+                        
+                        let choosePopSound = Int.random(in: 1...2)
+                        if choosePopSound  == 1 {
+                            AudioManager.shared.playSound(.pop1)
+                        } else {
+                            AudioManager.shared.playSound(.pop2)
+                        }
                     }
                 }
             }
@@ -117,6 +124,7 @@ class ARViewController: UIViewController {
     }
     
     func showResult() {
+        AudioManager.shared.playSound(.bell)
         DispatchQueue.main.async { [ weak self ] in
             let alertController = UIAlertController(
                 title: "Time's UP!",
@@ -181,7 +189,7 @@ class ARViewController: UIViewController {
         
         self.view.addSubview(scoreLabel)
         
-        scoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 20).isActive = true
+        scoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 50).isActive = true
         scoreLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
     }
     
@@ -238,12 +246,13 @@ class ARViewController: UIViewController {
         
         fingerHeartSilhouetteView = UIImageView(image: fingerHeartSilhouetteImage)
         
+        
         fingerHeartSilhouetteView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(fingerHeartSilhouetteView)
         
         fingerHeartSilhouetteView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        fingerHeartSilhouetteView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 20).isActive = true
+        fingerHeartSilhouetteView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -100).isActive = true
         
     }
     
@@ -273,8 +282,6 @@ class ARViewController: UIViewController {
     }
     
     func distributeTargetNode() {
-        let remainingTargetNodeNumber: Int = targetNodes.count
-        
         for targetNode in targetNodes {
             targetNode.position = SCNVector3(
                 Float.random(in: -10...10),
@@ -311,7 +318,6 @@ class ARViewController: UIViewController {
             let label = prediction.label
             
             guard let confidence = prediction.labelProbabilities[label] else { return }
-//            print("label:\(prediction.label)\nconfidence:\(confidence)")
             
             // do this if prediction > 70%
             if confidence > 0.7 {
@@ -376,7 +382,8 @@ class ARViewController: UIViewController {
                 self.isEffectAppearing = false
             }
             let fadeOut = SCNAction.fadeOut(duration: 0.5)
-//            print("trying to shoot heartnode")
+            
+            AudioManager.shared.playSound(.heartShoot)
             heartNode.runAction(.sequence(
                 [
                     fadeIn,
@@ -438,7 +445,10 @@ class ARViewController: UIViewController {
     }
     
     func prepareEffects() {
-        guard let scene = SCNScene(named: heartModelPath) else { return }
+        guard let scene = SCNScene(named: heartModelPath) else {
+            print("Cannot make heartEffect")
+            return
+        }
         
         // add Effect.heart to arSceneView
         guard let heart = scene.rootNode.childNode(

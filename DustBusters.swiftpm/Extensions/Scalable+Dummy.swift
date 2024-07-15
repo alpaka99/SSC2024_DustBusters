@@ -9,7 +9,7 @@ import Foundation
 
 extension Constants.ScalableObject {
     init(dummy: Bool) {
-        self.imageName = Constants.microdustImageName
+        self.imageName = Constants.appleImageName
         self.initialSize = 10
         self.opacity = 0.001
     }

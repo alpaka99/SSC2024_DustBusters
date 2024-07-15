@@ -10,8 +10,13 @@ import SwiftUI
 
 
 struct SizeCompareView: View {
-    @StateObject var sizeCompareViewReducer: SizeCompareViewReducer
+    @Binding var path: NavigationPath
     @State private var offset: CGFloat = CGFloat.zero
+    @State private var isShowingFirstModal: Bool = true
+    @State private var firstTrigger: Bool = true
+    @State private var isShowingSecondModal: Bool = false
+    @State private var secondTrigger: Bool = false
+    
     private var scaleAmount: CGFloat {
         get {
             switch offset {
@@ -24,8 +29,6 @@ struct SizeCompareView: View {
             }
         }
     }
-
-    
     
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -39,6 +42,17 @@ struct SizeCompareView: View {
                         .padding(20)
                         .offset(x: 0.2)
                         .scaleEffect(scaleAmount)
+                        .allowsHitTesting((item.imageName == Constants.twodustsImageName))
+                        .simultaneousGesture(
+                            TapGesture()
+                                .onEnded {
+                                    if item.imageName == Constants.twodustsImageName {
+                                        withAnimation {
+                                            self.isShowingSecondModal = true
+                                        }
+                                    }
+                                }
+                        )
                 }
             }
             .frame(maxWidth: UIScreen.main.bounds.width)
@@ -54,9 +68,56 @@ struct SizeCompareView: View {
             .onPreferenceChange(ScrollOffsetKey.self) { value in
                 self.offset = value
             }
+            .onChange(of: scaleAmount) { _ in
+                let soundTrigger = scaleAmount.truncatingRemainder(dividingBy: 10)
+                if soundTrigger > 9 {
+                    AudioManager.shared.playSound(.dragSound)
+                }
+            }
         }
+        
+        .scrollDisabled(isShowingFirstModal)
+        .modalView(
+            isShowingModal: $isShowingFirstModal,
+            trigger: $firstTrigger,
+            modalColor: .constant(Color.appColor()),
+            messages: ["Micro dusts are dusts that is smaller than 10µm", "It is ultra small that it can only be seen using special micro scopes", "To see how small micro dust is, scroll on this screen and find micro dusts.", "And once you find it, tap on it!"],
+            tapBackgroundToDismiss: true
+        )
+        .modalView(
+            isShowingModal: $isShowingSecondModal,
+            trigger: $secondTrigger,
+            modalColor: .constant(Color.appColor()),
+            messages: ["You found micro dusts!","Micro dusts are only 1/400000 or smaller then radius of world's smallest apple!", "This small size is the reason micro dusts cause problems.", "We can't let them just float on air and cause problems, can we?","Let's bust some dust starting from the one's near you!"],
+            tapBackgroundToDismiss: false
+        )
         .coordinateSpace(name: "ScrollView")
-        .background(Color.brown)
+        .background{
+            LinearGradient(
+                colors: [.white, Color.appColor()],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+        }
+        .onChange(of: firstTrigger) { _ in
+            isShowingFirstModal = false
+        }
+        .onChange(of: secondTrigger) { _ in
+            path.append(Constants.NavigationValue.microDustEffectView)
+        }
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    isShowingFirstModal = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.largeTitle)
+                }
+            }
+        }
+        .navigationTitle(String(format: "Scale: x%.0f", self.scaleAmount))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

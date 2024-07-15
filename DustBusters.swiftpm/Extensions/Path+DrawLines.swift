@@ -75,8 +75,16 @@ extension Path {
             centerY = self.currentY
         }
         
-        self.addArc(center: CGPoint(x: centerX, y: centerY), radius: radius, startAngle: Angle(degrees: startAngle), endAngle: Angle(degrees: endAngle), clockwise: false)
-        
+        self.addArc(
+            center: CGPoint(
+                x: centerX,
+                y: centerY
+            ),
+            radius: radius,
+            startAngle: Angle(degrees: startAngle),
+            endAngle: Angle(degrees: endAngle),
+            clockwise: false
+        )
     }
     
     enum Quadrant {

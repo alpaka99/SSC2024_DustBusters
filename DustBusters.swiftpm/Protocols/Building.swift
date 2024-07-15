@@ -9,8 +9,6 @@ import Foundation
 import SwiftUI
 
 protocol Building {
-    //    var initialX: CGFloat { get }
-    //    var initialY: CGFloat { get }
     var startingPoint: CGPoint { get }
     var buildingColor: Color { get set }
     
@@ -37,4 +35,8 @@ extension Building {
     mutating func changeBuildingColor(to color: Color) {
         buildingColor = color
     }
+}
+
+enum BuildingColor {
+    case dust, gray, clean
 }
