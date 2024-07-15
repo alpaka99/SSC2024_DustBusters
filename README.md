@@ -12,9 +12,9 @@
 ![앱아이콘](https://github.com/alpaka99/SSC2024_DustBusters/assets/22471820/500e05fe-459c-4095-938e-f6ee21c5768e)
 
 
-- 2024 Swift Student Challenge의 350명 winner로 입상한 앱입니다.
+- `2024 Swift Student Challenge의 350명 winner로 입상`한 앱입니다.
 - 꼭 UIKit을 사용해야하는 부분 이외에는 전부 SwiftUI로 구현하였습니다.
-- 외부 library를 사용하지 않고 100% 애플의 프레임워크를 사용하여 구현하였습니다.(animation, Transition etc...)
+- 외부 library를 사용하지 않고 `100% 애플의 프레임워크를 사용하여 구현`하였습니다.(animation, Transition etc...)
 - CoreML, ARKit등을 이용하여 사용자에게 interactive한 경험을 제공하였습니다.
 <br></br>
 
